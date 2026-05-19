@@ -2,6 +2,9 @@ import { Link } from "react-router-dom"
 
 import { cn } from "@workspace/ui/lib/utils"
 
+const BRAM_SUURD_URL =
+  "https://bramsuurd.nl?utm_source=transferflow&utm_medium=footer&utm_campaign=attribution"
+
 export function AppShell({
   children,
   className,
@@ -20,6 +23,18 @@ export function AppShell({
         </Link>
       </header>
       <main className="flex flex-1 flex-col">{children}</main>
+      <footer className="text-muted-foreground px-4 py-6 text-center text-xs">
+        Made with ❤️ by{" "}
+        <a
+          href={BRAM_SUURD_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline-offset-4 hover:underline"
+        >
+          Bram Suurd
+        </a>{" "}
+        In 🇳🇱
+      </footer>
     </div>
   )
 }
