@@ -1,3 +1,4 @@
+import type { SharePublic } from "@transferflow/shared"
 import { Button } from "@transferflow/ui/components/button"
 import {
   Card,
@@ -14,8 +15,7 @@ import {
   EmptyTitle,
 } from "@transferflow/ui/components/empty"
 import { Spinner } from "@transferflow/ui/components/spinner"
-import { toast, toastManager } from "@transferflow/ui/components/toast"
-import type { SharePublic } from "@transferflow/shared"
+import { toastManager } from "@transferflow/ui/components/toast"
 import { Check, Copy, Download } from "lucide-react"
 import * as React from "react"
 import { useParams } from "react-router-dom"
