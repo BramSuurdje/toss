@@ -1,4 +1,4 @@
-import type { CompletedPart, Retention, SharePublic } from "@workspace/shared"
+import type { CompletedPart, Retention, SharePublic } from "@transferflow/shared"
 
 const API_BASE = import.meta.env.VITE_API_URL ?? ""
 

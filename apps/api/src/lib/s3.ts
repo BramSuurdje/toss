@@ -11,7 +11,7 @@ import {
 } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
-import { MULTIPART_PART_SIZE_BYTES, getMultipartPartCount } from "@workspace/shared"
+import { MULTIPART_PART_SIZE_BYTES, getMultipartPartCount } from "@transferflow/shared"
 
 import { env } from "../env"
 

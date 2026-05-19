@@ -8,7 +8,7 @@ import {
   shouldUseMultipartUpload,
   type ShareRecord,
   toPublicShare,
-} from "@workspace/shared"
+} from "@transferflow/shared"
 
 import { EXPIRY_ZSET_KEY, redis } from "./redis"
 import {

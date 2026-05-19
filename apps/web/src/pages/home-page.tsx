@@ -1,11 +1,9 @@
-import { MAX_FILE_SIZE_BYTES, type Retention } from "@workspace/shared"
+import { MAX_FILE_SIZE_BYTES, type Retention } from "@transferflow/shared"
 import { Upload, X } from "lucide-react"
 import * as React from "react"
-import { useNavigate } from "react-router-dom"
-import { toast } from "sonner"
 
-import { Button } from "@workspace/ui/components/button"
-import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
+import { Button } from "@transferflow/ui/components/button"
+import { Card, CardContent, CardFooter } from "@transferflow/ui/components/card"
 import {
   FileUpload,
   FileUploadDropzone,
@@ -15,17 +13,19 @@ import {
   FileUploadItemPreview,
   FileUploadList,
   FileUploadTrigger,
-} from "@workspace/ui/components/file-upload"
-import { Label } from "@workspace/ui/components/label"
-import { Progress } from "@workspace/ui/components/progress"
+} from "@transferflow/ui/components/file-upload"
+import { Label } from "@transferflow/ui/components/label"
+import { Progress } from "@transferflow/ui/components/progress"
 import {
   RadioGroup,
   RadioGroupItem,
-} from "@workspace/ui/components/radio-group"
-import { Spinner } from "@workspace/ui/components/spinner"
+} from "@transferflow/ui/components/radio-group"
+import { Spinner } from "@transferflow/ui/components/spinner"
 
 import { completeShare, createShare } from "@/lib/api"
 import { uploadShare } from "@/lib/upload"
+import { toast } from "@transferflow/ui/components/toast"
+import { useNavigate } from "react-router-dom"
 
 type UploadUiState = {
   isUploading: boolean

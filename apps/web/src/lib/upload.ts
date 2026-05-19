@@ -2,7 +2,7 @@ import {
   MULTIPART_PART_SIZE_BYTES,
   MULTIPART_UPLOAD_CONCURRENCY,
   type CompletedPart,
-} from "@workspace/shared"
+} from "@transferflow/shared"
 
 import type { ShareCreateUpload } from "@/lib/api"
 

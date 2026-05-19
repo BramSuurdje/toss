@@ -4,7 +4,7 @@ import {
   isBlockedFile,
   MAX_FILE_SIZE_BYTES,
   RETENTION_OPTIONS,
-} from "@workspace/shared"
+} from "@transferflow/shared"
 import { Hono } from "hono"
 import { z } from "zod"
 

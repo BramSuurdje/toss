@@ -15,7 +15,7 @@ import {
 } from "@transferflow/ui/components/empty"
 import { Spinner } from "@transferflow/ui/components/spinner"
 import { toastManager } from "@transferflow/ui/components/toast"
-import type { SharePublic } from "@workspace/shared"
+import type { SharePublic } from "@transferflow/shared"
 import { Copy, Download } from "lucide-react"
 import * as React from "react"
 import { useParams } from "react-router-dom"

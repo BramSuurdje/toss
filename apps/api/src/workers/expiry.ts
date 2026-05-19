@@ -1,4 +1,3 @@
-import { shareRedisKey } from "@workspace/shared"
 
 import { env } from "../env"
 import { EXPIRY_ZSET_KEY, redis } from "../lib/redis"

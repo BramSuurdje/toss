@@ -27,7 +27,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@transferflow/ui/*": ["../../packages/ui/src/*"],
-      "@workspace/shared": ["../../packages/shared/src/index.ts"]
+      "@transferflow/shared": ["../../packages/shared/src/index.ts"]
     }
   },
   "include": ["src"]
