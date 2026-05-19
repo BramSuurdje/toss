@@ -62,10 +62,7 @@ function fileMatchesAccept(file: File, acceptTypes: string[]): boolean {
   return acceptTypes.some((type) => fileMatchesAcceptType(file, type))
 }
 
-function setInputFilesFromList(
-  input: HTMLInputElement,
-  files: File[]
-): void {
+function setInputFilesFromList(input: HTMLInputElement, files: File[]): void {
   const dataTransfer = new DataTransfer()
   for (const file of files) {
     dataTransfer.items.add(file)
@@ -164,7 +161,7 @@ type Store = {
 const StoreContext = React.createContext<Store | null>(null)
 
 function useStoreContext(consumerName: string) {
-  const context = React.useContext(StoreContext)
+  const context = React.use(StoreContext)
   if (!context) {
     throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``)
   }
@@ -210,7 +207,7 @@ const FileUploadContext = React.createContext<FileUploadContextValue | null>(
 )
 
 function useFileUploadContext(consumerName: string) {
-  const context = React.useContext(FileUploadContext)
+  const context = React.use(FileUploadContext)
   if (!context) {
     throw new Error(`\`${consumerName}\` must be used within \`${ROOT_NAME}\``)
   }
@@ -571,14 +568,16 @@ function FileUpload(props: FileUploadProps) {
       const rejectedFiles: { file: File; message: string }[] = []
 
       for (const file of filesToProcess) {
+        const onFileReject = propsRef.current.onFileReject
+        const onFileValidate = propsRef.current.onFileValidate
         let rejected = false
         let rejectionMessage = ""
 
-        if (propsRef.current.onFileValidate) {
-          const validationMessage = propsRef.current.onFileValidate(file)
+        if (onFileValidate) {
+          const validationMessage = onFileValidate(file)
           if (validationMessage) {
             rejectionMessage = validationMessage
-            propsRef.current.onFileReject?.(file, rejectionMessage)
+            onFileReject?.(file, rejectionMessage)
             rejected = true
             invalid = true
             continue
@@ -587,14 +586,14 @@ function FileUpload(props: FileUploadProps) {
 
         if (acceptTypes && !fileMatchesAccept(file, acceptTypes)) {
           rejectionMessage = "File type not accepted"
-          propsRef.current.onFileReject?.(file, rejectionMessage)
+          onFileReject?.(file, rejectionMessage)
           rejected = true
           invalid = true
         }
 
         if (maxSize && file.size > maxSize) {
           rejectionMessage = "File too large"
-          propsRef.current.onFileReject?.(file, rejectionMessage)
+          onFileReject?.(file, rejectionMessage)
           rejected = true
           invalid = true
         }
@@ -999,7 +998,7 @@ const FileUploadItemContext =
   React.createContext<FileUploadItemContextValue | null>(null)
 
 function useFileUploadItemContext(consumerName: string) {
-  const context = React.useContext(FileUploadItemContext)
+  const context = React.use(FileUploadItemContext)
   if (!context) {
     throw new Error(`\`${consumerName}\` must be used within \`${ITEM_NAME}\``)
   }

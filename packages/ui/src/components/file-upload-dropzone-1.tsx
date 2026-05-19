@@ -18,6 +18,10 @@ import {
 
 export const title = "Basic Dropzone"
 
+function fileListKey(file: File) {
+  return `${file.name}-${file.size}-${file.lastModified}`
+}
+
 const Example = () => {
   const [files, setFiles] = React.useState<File[]>([])
 
@@ -54,8 +58,8 @@ const Example = () => {
         </FileUploadTrigger>
       </FileUploadDropzone>
       <FileUploadList>
-        {files.map((file, index) => (
-          <FileUploadItem key={index} value={file}>
+        {files.map((file) => (
+          <FileUploadItem key={fileListKey(file)} value={file}>
             <FileUploadItemPreview />
             <FileUploadItemMetadata />
             <FileUploadItemDelete

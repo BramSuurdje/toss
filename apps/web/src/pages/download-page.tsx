@@ -67,10 +67,15 @@ function LinkExpiredEmpty() {
   )
 }
 
+type ShareLoadState =
+  | { status: "loading" }
+  | { status: "ready"; share: SharePublic }
+  | { status: "not_found" }
+
 function ShareDownloadView({ id }: { id: string }) {
-  const [share, setShare] = React.useState<SharePublic | null>(null)
-  const [isLoading, setIsLoading] = React.useState(true)
-  const [notFound, setNotFound] = React.useState(false)
+  const [loadState, setLoadState] = React.useState<ShareLoadState>({
+    status: "loading",
+  })
   const [isDownloading, setIsDownloading] = React.useState(false)
 
   React.useEffect(() => {
@@ -80,17 +85,11 @@ function ShareDownloadView({ id }: { id: string }) {
       try {
         const data = await getShare(id)
         if (!cancelled) {
-          setShare(data)
-          setNotFound(false)
+          setLoadState({ status: "ready", share: data })
         }
       } catch {
         if (!cancelled) {
-          setNotFound(true)
-          setShare(null)
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false)
+          setLoadState({ status: "not_found" })
         }
       }
     })()
@@ -129,7 +128,7 @@ function ShareDownloadView({ id }: { id: string }) {
       })
   }
 
-  if (isLoading) {
+  if (loadState.status === "loading") {
     return (
       <div className="flex flex-1 items-center justify-center py-24">
         <Spinner className="size-8" />
@@ -137,9 +136,11 @@ function ShareDownloadView({ id }: { id: string }) {
     )
   }
 
-  if (notFound || !share) {
+  if (loadState.status === "not_found") {
     return <LinkExpiredEmpty />
   }
+
+  const { share } = loadState
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col px-4 py-6">
@@ -189,5 +190,5 @@ export function DownloadPage() {
     return <LinkExpiredEmpty />
   }
 
-  return <ShareDownloadView id={id} />
+  return <ShareDownloadView key={id} id={id} />
 }

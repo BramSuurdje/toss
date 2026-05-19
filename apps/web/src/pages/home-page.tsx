@@ -27,13 +27,51 @@ import { Spinner } from "@workspace/ui/components/spinner"
 import { completeShare, createShare } from "@/lib/api"
 import { uploadShare } from "@/lib/upload"
 
+type UploadUiState = {
+  isUploading: boolean
+  progress: number
+  label: string
+}
+
+type UploadUiAction =
+  | { type: "start" }
+  | { type: "progress"; progress: number; label: string }
+  | { type: "reset" }
+
+const initialUploadUi: UploadUiState = {
+  isUploading: false,
+  progress: 0,
+  label: "",
+}
+
+function uploadUiReducer(
+  state: UploadUiState,
+  action: UploadUiAction
+): UploadUiState {
+  switch (action.type) {
+    case "start":
+      return { isUploading: true, progress: 0, label: "Preparing…" }
+    case "progress":
+      return {
+        ...state,
+        progress: action.progress,
+        label: action.label,
+      }
+    case "reset":
+      return initialUploadUi
+    default:
+      return state
+  }
+}
+
 export function HomePage() {
   const navigate = useNavigate()
   const [files, setFiles] = React.useState<File[]>([])
   const [retention, setRetention] = React.useState<Retention>("24h")
-  const [isUploading, setIsUploading] = React.useState(false)
-  const [uploadProgress, setUploadProgress] = React.useState(0)
-  const [uploadLabel, setUploadLabel] = React.useState("")
+  const [uploadUi, dispatchUploadUi] = React.useReducer(
+    uploadUiReducer,
+    initialUploadUi
+  )
 
   const file = files[0] ?? null
 
@@ -47,9 +85,7 @@ export function HomePage() {
       return
     }
 
-    setIsUploading(true)
-    setUploadProgress(0)
-    setUploadLabel("Preparing…")
+    dispatchUploadUi({ type: "start" })
 
     try {
       const { id, upload } = await createShare({
@@ -59,24 +95,36 @@ export function HomePage() {
         retention,
       })
 
-      setUploadProgress(8)
-      setUploadLabel("Uploading…")
-
-      const parts = await uploadShare(file, upload, (percent) => {
-        setUploadProgress(8 + Math.round(percent * 0.87))
+      dispatchUploadUi({
+        type: "progress",
+        progress: 8,
+        label: "Uploading…",
       })
 
-      setUploadProgress(96)
-      setUploadLabel("Finishing…")
+      const parts = await uploadShare(file, upload, (percent) => {
+        dispatchUploadUi({
+          type: "progress",
+          progress: 8 + Math.round(percent * 0.87),
+          label: "Uploading…",
+        })
+      })
+
+      dispatchUploadUi({
+        type: "progress",
+        progress: 96,
+        label: "Finishing…",
+      })
       await completeShare(id, parts)
-      setUploadProgress(100)
+      dispatchUploadUi({
+        type: "progress",
+        progress: 100,
+        label: "Finishing…",
+      })
       navigate(`/d/${id}`, { replace: true })
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Upload failed")
     } finally {
-      setIsUploading(false)
-      setUploadProgress(0)
-      setUploadLabel("")
+      dispatchUploadUi({ type: "reset" })
     }
   }
 
@@ -92,7 +140,7 @@ export function HomePage() {
             maxFiles={1}
             maxSize={MAX_FILE_SIZE_BYTES}
             value={files}
-            disabled={isUploading}
+            disabled={uploadUi.isUploading}
             onValueChange={setFiles}
             onFileReject={onFileReject}
           >
@@ -154,23 +202,23 @@ export function HomePage() {
               </div>
             </RadioGroup>
           </div>
-          {isUploading ? (
+          {uploadUi.isUploading ? (
             <div className="flex flex-col gap-2">
               <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{uploadLabel}</span>
-                <span>{uploadProgress}%</span>
+                <span>{uploadUi.label}</span>
+                <span>{uploadUi.progress}%</span>
               </div>
-              <Progress value={uploadProgress} />
+              <Progress value={uploadUi.progress} />
             </div>
           ) : null}
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
           <Button
             className="w-full"
-            disabled={!file || isUploading}
+            disabled={!file || uploadUi.isUploading}
             onClick={() => void onShare()}
           >
-            {isUploading ? (
+            {uploadUi.isUploading ? (
               <>
                 <Spinner data-icon="inline-start" />
                 Uploading

@@ -96,23 +96,17 @@ async function runPool<T, R>(
   concurrency: number,
   worker: (item: T) => Promise<R>
 ): Promise<R[]> {
-  const results: R[] = new Array(items.length)
-  let index = 0
+  const batchCount = Math.ceil(items.length / concurrency)
+  const batches = Array.from({ length: batchCount }, (_, batchIndex) => {
+    const start = batchIndex * concurrency
+    return items.slice(start, start + concurrency)
+  })
 
-  async function runWorker() {
-    while (index < items.length) {
-      const current = index++
-      results[current] = await worker(items[current]!)
-    }
-  }
-
-  await Promise.all(
-    Array.from({ length: Math.min(concurrency, items.length) }, () =>
-      runWorker()
-    )
+  const batchResults = await Promise.all(
+    batches.map((batch) => Promise.all(batch.map(worker)))
   )
 
-  return results
+  return batchResults.flat()
 }
 
 export async function uploadMultipart(

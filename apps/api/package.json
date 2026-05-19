@@ -5,9 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts",
-    "configure-cors": "bun run scripts/configure-cors.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
+    "start": "bun run dist/index.js",
+    "build": "bun build src/index.ts --outdir dist --target bun --minify",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
