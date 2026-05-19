@@ -8,7 +8,6 @@ import {
 import {
   Popover,
   PopoverContent,
-  PopoverHeader,
   PopoverTitle,
   PopoverTrigger
 } from "@transferflow/ui/components/popover"
@@ -80,9 +79,13 @@ export function UploadHistoryMenu() {
     return () => window.removeEventListener(UPLOAD_HISTORY_CHANGED, refresh)
   }, [refresh])
 
-  React.useEffect(() => {
-    if (open) refresh()
-  }, [open, refresh])
+  const onOpenChange = React.useCallback(
+    (nextOpen: boolean) => {
+      setOpen(nextOpen)
+      if (nextOpen) refresh()
+    },
+    [refresh]
+  )
 
   const onSelect = (id: string) => {
     setOpen(false)
@@ -90,7 +93,7 @@ export function UploadHistoryMenu() {
   }
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger
         render={
           <Button
@@ -104,9 +107,9 @@ export function UploadHistoryMenu() {
         }
       />
       <PopoverContent align="end" className="w-80 gap-3 p-3">
-        <PopoverHeader className="px-1">
-          <PopoverTitle>Recent uploads</PopoverTitle>
-        </PopoverHeader>
+      <div className="mb-2">
+          <PopoverTitle className="text-base">Recent uploads</PopoverTitle>
+        </div>
 
         {entries.length === 0 ? (
           <Empty className="py-8">

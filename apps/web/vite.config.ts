@@ -52,9 +52,6 @@ export default defineConfig({
           ) {
             return "motion-vendor"
           }
-          if (normalized.includes("/@base-ui/")) {
-            return "base-ui-vendor"
-          }
         },
       },
     },
