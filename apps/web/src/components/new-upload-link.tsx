@@ -1,7 +1,6 @@
+import { Button } from "@transferflow/ui/components/button"
+import { cn } from "@transferflow/ui/lib/utils"
 import { Link } from "react-router-dom"
-
-import { Button } from "@workspace/ui/components/button"
-import { cn } from "@workspace/ui/lib/utils"
 
 export function NewUploadLink({
   className,

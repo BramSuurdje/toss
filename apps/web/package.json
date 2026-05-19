@@ -13,13 +13,12 @@
     "start": "bunx serve dist -s -l ${PORT:-4173}"
   },
   "dependencies": {
-    "@workspace/shared": "workspace:*",
-    "@workspace/ui": "workspace:*",
+    "@transferflow/shared": "workspace:*",
+    "@transferflow/ui": "workspace:*",
     "lucide-react": "^1.16.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-router-dom": "^7.9.1",
-    "sonner": "^2.0.7"
+    "react-router-dom": "^7.9.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",

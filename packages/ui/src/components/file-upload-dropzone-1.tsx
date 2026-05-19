@@ -1,10 +1,10 @@
-"use client";
+"use client"
 
-import { Upload, X } from "lucide-react";
-import * as React from "react";
-import { toast } from "sonner";
+import { Upload, X } from "lucide-react"
+import * as React from "react"
+import { toast } from "sonner"
 
-import { Button } from "@workspace/ui/components/button";
+import { Button } from "@transferflow/ui/components/button"
 import {
   FileUpload,
   FileUploadDropzone,
@@ -14,18 +14,18 @@ import {
   FileUploadItemPreview,
   FileUploadList,
   FileUploadTrigger,
-} from "@workspace/ui/components/file-upload";
+} from "@transferflow/ui/components/file-upload"
 
-export const title = "Basic Dropzone";
+export const title = "Basic Dropzone"
 
 const Example = () => {
-  const [files, setFiles] = React.useState<File[]>([]);
+  const [files, setFiles] = React.useState<File[]>([])
 
   const onFileReject = React.useCallback((file: File, message: string) => {
     toast(message, {
       description: `"${file.name.length > 20 ? `${file.name.slice(0, 20)}...` : file.name}" has been rejected`,
-    });
-  }, []);
+    })
+  }, [])
 
   return (
     <FileUpload
@@ -47,20 +47,27 @@ const Example = () => {
             Or click to browse (max 5 files, up to 5MB each)
           </p>
         </div>
-        <FileUploadTrigger render={<Button variant="outline" size="sm" className="mt-2 w-fit" />}>Browse files
-                        </FileUploadTrigger>
+        <FileUploadTrigger
+          render={<Button variant="outline" size="sm" className="mt-2 w-fit" />}
+        >
+          Browse files
+        </FileUploadTrigger>
       </FileUploadDropzone>
       <FileUploadList>
         {files.map((file, index) => (
           <FileUploadItem key={index} value={file}>
             <FileUploadItemPreview />
             <FileUploadItemMetadata />
-            <FileUploadItemDelete render={<Button variant="ghost" size="icon" className="size-7" />}><X className="size-4" /></FileUploadItemDelete>
+            <FileUploadItemDelete
+              render={<Button variant="ghost" size="icon" className="size-7" />}
+            >
+              <X className="size-4" />
+            </FileUploadItemDelete>
           </FileUploadItem>
         ))}
       </FileUploadList>
     </FileUpload>
-  );
-};
+  )
+}
 
-export default Example;
+export default Example

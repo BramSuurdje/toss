@@ -1,25 +1,24 @@
-import type { SharePublic } from "@workspace/shared"
-import { Copy, Download } from "lucide-react"
-import * as React from "react"
-import { useParams } from "react-router-dom"
-import { toast } from "sonner"
-
-import { Button } from "@workspace/ui/components/button"
+import { Button } from "@transferflow/ui/components/button"
 import {
   Card,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@workspace/ui/components/card"
+} from "@transferflow/ui/components/card"
 import {
   Empty,
   EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyTitle,
-} from "@workspace/ui/components/empty"
-import { Spinner } from "@workspace/ui/components/spinner"
+} from "@transferflow/ui/components/empty"
+import { Spinner } from "@transferflow/ui/components/spinner"
+import { toastManager } from "@transferflow/ui/components/toast"
+import type { SharePublic } from "@workspace/shared"
+import { Copy, Download } from "lucide-react"
+import * as React from "react"
+import { useParams } from "react-router-dom"
 
 import { NewUploadLink } from "@/components/new-upload-link"
 import { getDownloadUrl, getShare, sharePageUrl } from "@/lib/api"
@@ -50,20 +49,31 @@ function formatTimeRemaining(expiresAt: number): string {
   return `${minutes}m left`
 }
 
-export function DownloadPage() {
-  const { id } = useParams<{ id: string }>()
+function LinkExpiredEmpty() {
+  return (
+    <div className="mx-auto flex w-full max-w-lg flex-col px-4 py-6">
+      <Empty>
+        <EmptyHeader>
+          <EmptyTitle>Link expired</EmptyTitle>
+          <EmptyDescription>
+            This file was deleted after its retention period.
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <NewUploadLink />
+        </EmptyContent>
+      </Empty>
+    </div>
+  )
+}
+
+function ShareDownloadView({ id }: { id: string }) {
   const [share, setShare] = React.useState<SharePublic | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [notFound, setNotFound] = React.useState(false)
   const [isDownloading, setIsDownloading] = React.useState(false)
 
   React.useEffect(() => {
-    if (!id) {
-      setNotFound(true)
-      setIsLoading(false)
-      return
-    }
-
     let cancelled = false
 
     void (async () => {
@@ -91,23 +101,32 @@ export function DownloadPage() {
   }, [id])
 
   const onCopyLink = async () => {
-    if (!id) return
-    await navigator.clipboard.writeText(sharePageUrl(id))
-    toast.success("Copied")
+    toastManager.promise(navigator.clipboard.writeText(sharePageUrl(id)), {
+      success: "Copied to clipboard",
+      error: (error) =>
+        error instanceof Error ? error.message : "Failed to copy to clipboard",
+      loading: "Copying to clipboard…",
+    })
   }
 
   const onDownload = async () => {
-    if (!id) return
-
     setIsDownloading(true)
-    try {
-      const { url } = await getDownloadUrl(id)
-      window.location.assign(url)
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Download failed")
-    } finally {
-      setIsDownloading(false)
-    }
+    toastManager
+      .promise(
+        (async () => {
+          const { url } = await getDownloadUrl(id)
+          window.location.assign(url)
+        })(),
+        {
+          loading: "Preparing your download…",
+          success: "Download started",
+          error: (error) =>
+            error instanceof Error ? error.message : "Failed to download",
+        }
+      )
+      .finally(() => {
+        setIsDownloading(false)
+      })
   }
 
   if (isLoading) {
@@ -119,21 +138,7 @@ export function DownloadPage() {
   }
 
   if (notFound || !share) {
-    return (
-      <div className="mx-auto flex w-full max-w-lg flex-col px-4 py-6">
-        <Empty>
-          <EmptyHeader>
-            <EmptyTitle>Link expired</EmptyTitle>
-            <EmptyDescription>
-              This file was deleted after its retention period.
-            </EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <NewUploadLink />
-          </EmptyContent>
-        </Empty>
-      </div>
-    )
+    return <LinkExpiredEmpty />
   }
 
   return (
@@ -153,8 +158,7 @@ export function DownloadPage() {
           >
             {isDownloading ? (
               <>
-                <Spinner data-icon="inline-start" />
-                …
+                <Spinner data-icon="inline-start" />…
               </>
             ) : (
               <>
@@ -176,4 +180,14 @@ export function DownloadPage() {
       </Card>
     </div>
   )
+}
+
+export function DownloadPage() {
+  const { id } = useParams<{ id: string }>()
+
+  if (!id) {
+    return <LinkExpiredEmpty />
+  }
+
+  return <ShareDownloadView id={id} />
 }

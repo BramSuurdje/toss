@@ -15,7 +15,7 @@
     "@aws-sdk/s3-request-presigner": "^3.888.0",
     "@hono/zod-validator": "^0.7.6",
     "@paralleldrive/cuid2": "^2.2.2",
-    "@workspace/shared": "workspace:*",
+    "@transferflow/shared": "workspace:*",
     "hono": "^4.9.6",
     "ioredis": "^5.7.0",
     "zod": "^3.25.76"
