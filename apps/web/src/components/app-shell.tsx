@@ -5,6 +5,7 @@ import { Separator } from "@transferflow/ui/components/separator"
 import { BRAM_SUURD_URL, GITHUB_URL } from "@transferflow/shared"
 
 import { UploadHistoryMenu } from "@/components/upload-history-menu"
+import { Highlighter } from "@transferflow/ui/components/highlighter"
 
 export function AppShell({
   children,
@@ -58,13 +59,18 @@ export function AppShell({
       </div>
       <aside
         aria-hidden
-        className="hidden lg:block lg:h-svh lg:w-1/2 lg:shrink-0"
+        className="hidden lg:block lg:h-svh lg:w-1/2 lg:shrink-0 relative"
       >
         <img
           src="/image.webp"
           alt=""
           className="size-full object-cover object-bottom"
         />
+        {/* <div className="absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-background to-transparent" /> */}
+        
+        <div className="absolute top-45 left-4 right-4 text-center text-4xl font-bold text-foreground font-serif">
+          Transfering files has <br /> <Highlighter action="underline" strokeWidth={2} color="#DD8266" animationDuration={1250}>never been easier</Highlighter>.
+        </div>
       </aside>
     </div>
   )

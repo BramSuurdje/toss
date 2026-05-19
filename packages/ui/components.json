@@ -23,6 +23,7 @@
   "registries": {
     "@shadcnblocks": "https://shadcnblocks.com/r/{name}.json",
     "@diceui": "https://diceui.com/r/{name}.json",
-    "@coss": "https://coss.com/ui/r/{name}.json"
+    "@coss": "https://coss.com/ui/r/{name}.json",
+    "@magicui": "https://magicui.design/r/{name}"
   }
 }
