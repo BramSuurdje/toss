@@ -126,6 +126,15 @@ export async function abortMultipartUpload(
   }
 }
 
+function contentDispositionAttachment(filename: string): string {
+  const ascii = filename
+    .replace(/[^\x20-\x7E]/g, "_")
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+  const utf8 = encodeURIComponent(filename)
+  return `attachment; filename="${ascii}"; filename*=UTF-8''${utf8}`
+}
+
 export async function createDownloadUrl(
   objectKey: string,
   filename: string,
@@ -134,7 +143,7 @@ export async function createDownloadUrl(
   const command = new GetObjectCommand({
     Bucket: env.s3.bucket,
     Key: objectKey,
-    ResponseContentDisposition: `attachment; filename="${encodeURIComponent(filename)}"`,
+    ResponseContentDisposition: contentDispositionAttachment(filename),
     ResponseContentType: contentType,
   })
 
