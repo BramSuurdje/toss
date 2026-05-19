@@ -56,32 +56,39 @@ Also provision **Redis** and an **S3-compatible bucket** in the same project.
 
 **API variables:** `WEB_ORIGIN`, `REDIS_URL`, `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`
 
-Use the **Credentials** tab on your Railway bucket. `S3_BUCKET` is the full API bucket name (e.g. `my-bucket-jdhhd8oe18xi`). `S3_ENDPOINT` is typically `https://storage.railway.app`. Do **not** set `S3_FORCE_PATH_STYLE` (Railway uses virtual-hosted URLs).
+Use Railway bucket credentials from the bucket **Credentials** tab. Set `S3_BUCKET` to the bucket name shown there (e.g. `allocated-pannikin-eotpz3`). Use the **Endpoint URL** from that tab (e.g. `https://t3.storageapi.dev`). **Do not set** `S3_FORCE_PATH_STYLE` on Railway — the API defaults to virtual-hosted URLs, which is what Railway requires (see the “Use virtual-hosted-style URLs” note in the dashboard).
 
 **Web build variable:** `VITE_API_URL=https://your-api.up.railway.app`
 
-Set `WEB_ORIGIN` to the web service public URL so the API accepts browser requests.
+Set `WEB_ORIGIN` to the web service public URL so CORS allows browser requests.
 
-### Railway bucket: browser uploads & multipart
+### Railway bucket notes
 
-Railway buckets are S3-compatible (Tigris-backed) and **support multipart uploads**. Files **≥ 32 MB** upload in **8 MB parts**, **4 at a time**; smaller files use a single PUT.
+- **Multipart uploads are supported** (same S3 API as AWS).
+- Presigned URLs work for both single `PUT` and multipart parts.
+- Files **≥ 32 MB** upload in **8 MB parts**, **4 at a time**; smaller files use a single `PUT`.
+- Abandoned multipart uploads are aborted when pending shares expire.
 
-**CORS is required** for browser → bucket uploads (including each multipart part). Configure once with the AWS CLI (replace values from your bucket credentials):
+### Browser uploads require bucket CORS
+
+The browser uploads **directly to the bucket**. Railway buckets are private and **do not ship with CORS** for your app origin. Without CORS you get `Upload to storage failed` (or a CORS error in DevTools).
+
+From `apps/api` with production `.env` (or Railway variables in a local `.env`):
 
 ```bash
-AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=... aws s3api put-bucket-cors \
-  --bucket YOUR_BUCKET_NAME \
-  --endpoint-url https://storage.railway.app \
-  --cors-configuration '{"CORSRules":[{"AllowedHeaders":["*"],"AllowedMethods":["PUT","POST","HEAD"],"AllowedOrigins":["https://your-web.up.railway.app"],"MaxAgeSeconds":3000}]}'
+cd apps/api
+bun run configure-cors
 ```
 
-For local dev with MinIO, set `S3_FORCE_PATH_STYLE=true` in `apps/api/.env` (see `.env.example`).
+This allows `PUT` from your `WEB_ORIGIN` (and localhost for dev) and exposes the `ETag` header multipart uploads need.
+
+Use your bucket **Endpoint URL** as `S3_ENDPOINT` (e.g. `https://t3.storageapi.dev`), not a generic placeholder.
 
 ## API
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `POST` | `/shares` | Create share; returns simple PUT URL or multipart part URLs |
+| `POST` | `/shares` | Create share; returns single or multipart presigned upload |
 | `POST` | `/shares/:id/complete` | Finalize upload (`{ parts }` required for multipart) |
 | `GET` | `/shares/:id` | Share metadata |
 | `POST` | `/shares/:id/download` | Mint short-lived download URL |

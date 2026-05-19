@@ -1,7 +1,6 @@
 import {
   type CompletedPart,
   DOWNLOAD_URL_TTL_SECONDS,
-  MULTIPART_PART_SIZE_BYTES,
   objectKeyForShare,
   PENDING_UPLOAD_TTL_SECONDS,
   retentionExpiresAt,
@@ -15,20 +14,28 @@ import { EXPIRY_ZSET_KEY, redis } from "./redis"
 import {
   abortMultipartUpload,
   completeMultipartUpload,
-  createAllPartUploadUrls,
   createDownloadUrl,
+  createMultipartPartUrls,
+  createMultipartUpload,
   createUploadUrl,
   deleteObject,
   objectExists,
-  startMultipartUpload,
 } from "./s3"
+
+export type ShareCreateUpload =
+  | { mode: "single"; uploadUrl: string }
+  | {
+      mode: "multipart"
+      partSize: number
+      parts: { partNumber: number; url: string }[]
+    }
 
 export async function getShareRecord(id: string): Promise<ShareRecord | null> {
   const raw = await redis.get(shareRedisKey(id))
   if (!raw) return null
   const record = JSON.parse(raw) as ShareRecord
   if (!record.uploadMode) {
-    record.uploadMode = "simple"
+    record.uploadMode = "single"
   }
   return record
 }
@@ -61,19 +68,6 @@ export async function removeExpiryIndex(id: string): Promise<void> {
   await redis.zrem(EXPIRY_ZSET_KEY, id)
 }
 
-export type CreateShareResult =
-  | {
-      record: ShareRecord
-      uploadMode: "simple"
-      uploadUrl: string
-    }
-  | {
-      record: ShareRecord
-      uploadMode: "multipart"
-      partSize: number
-      parts: { partNumber: number; uploadUrl: string }[]
-    }
-
 export async function createPendingShare(
   record: Omit<
     ShareRecord,
@@ -81,7 +75,7 @@ export async function createPendingShare(
   > & {
     retention: ShareRecord["retention"]
   }
-): Promise<CreateShareResult> {
+): Promise<{ record: ShareRecord; upload: ShareCreateUpload }> {
   const objectKey = objectKeyForShare(record.id)
   const useMultipart = shouldUseMultipartUpload(record.size)
 
@@ -90,44 +84,43 @@ export async function createPendingShare(
     status: "pending",
     objectKey,
     expiresAt: Date.now() + PENDING_UPLOAD_TTL_SECONDS * 1000,
-    uploadMode: useMultipart ? "multipart" : "simple",
+    uploadMode: useMultipart ? "multipart" : "single",
   }
 
-  if (useMultipart) {
-    const multipartUploadId = await startMultipartUpload(
-      objectKey,
-      share.contentType
-    )
-    share.multipartUploadId = multipartUploadId
-    await saveShareRecord(share, PENDING_UPLOAD_TTL_SECONDS)
+  let upload: ShareCreateUpload
 
-    const parts = await createAllPartUploadUrls(
+  if (useMultipart) {
+    const uploadId = await createMultipartUpload(objectKey, share.contentType)
+    share.multipartUploadId = uploadId
+
+    const multipart = await createMultipartPartUrls(
       objectKey,
-      multipartUploadId,
+      uploadId,
       share.size
     )
 
-    return {
-      record: share,
-      uploadMode: "multipart",
-      partSize: MULTIPART_PART_SIZE_BYTES,
-      parts,
+    upload = {
+      mode: "multipart",
+      partSize: multipart.partSize,
+      parts: multipart.parts,
     }
+  } else {
+    const uploadUrl = await createUploadUrl(
+      objectKey,
+      share.contentType,
+      share.size
+    )
+    upload = { mode: "single", uploadUrl }
   }
 
   await saveShareRecord(share, PENDING_UPLOAD_TTL_SECONDS)
-  const uploadUrl = await createUploadUrl(
-    objectKey,
-    share.contentType,
-    share.size
-  )
 
-  return { record: share, uploadMode: "simple", uploadUrl }
+  return { record: share, upload }
 }
 
 export async function completeShare(
   id: string,
-  multipartParts?: CompletedPart[]
+  parts?: CompletedPart[]
 ): Promise<
   ShareRecord | "missing" | "not_pending" | "object_missing" | "invalid_parts"
 > {
@@ -137,13 +130,13 @@ export async function completeShare(
 
   if (existing.uploadMode === "multipart") {
     if (!existing.multipartUploadId) return "missing"
-    if (!multipartParts?.length) return "invalid_parts"
+    if (!parts?.length) return "invalid_parts"
 
     try {
       await completeMultipartUpload(
         existing.objectKey,
         existing.multipartUploadId,
-        multipartParts
+        parts
       )
     } catch {
       return "object_missing"
@@ -190,15 +183,16 @@ export async function createShareDownloadUrl(id: string) {
 
 export async function purgeShare(id: string, record?: ShareRecord | null) {
   const share = record ?? (await getShareRecord(id))
+
   if (share) {
+    if (share.multipartUploadId) {
+      await abortMultipartUpload(share.objectKey, share.multipartUploadId)
+    }
+
     try {
-      if (share.multipartUploadId && share.status === "pending") {
-        await abortMultipartUpload(share.objectKey, share.multipartUploadId)
-      } else {
-        await deleteObject(share.objectKey)
-      }
+      await deleteObject(share.objectKey)
     } catch (error) {
-      console.error(`Failed to delete storage for share ${id}`, error)
+      console.error(`Failed to delete object for share ${id}`, error)
     }
   }
 

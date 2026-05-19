@@ -44,7 +44,7 @@ export const sharesRoutes = new Hono()
     const id = createId()
     const createdAt = Date.now()
 
-    const result = await createPendingShare({
+    const { upload } = await createPendingShare({
       id,
       filename: body.filename,
       contentType: body.contentType,
@@ -53,26 +53,7 @@ export const sharesRoutes = new Hono()
       createdAt,
     })
 
-    if (result.uploadMode === "multipart") {
-      return c.json(
-        {
-          id,
-          uploadMode: "multipart" as const,
-          partSize: result.partSize,
-          parts: result.parts,
-        },
-        201
-      )
-    }
-
-    return c.json(
-      {
-        id,
-        uploadMode: "simple" as const,
-        uploadUrl: result.uploadUrl,
-      },
-      201
-    )
+    return c.json({ id, upload }, 201)
   })
   .post(
     "/:id/complete",

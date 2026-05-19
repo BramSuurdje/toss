@@ -16,7 +16,7 @@ export const env = {
     bucket: required("S3_BUCKET"),
     accessKeyId: required("S3_ACCESS_KEY_ID"),
     secretAccessKey: required("S3_SECRET_ACCESS_KEY"),
-    /** Railway buckets use virtual-hosted URLs; MinIO local dev uses path-style. */
+    /** Railway: false (virtual-hosted). MinIO local: true. */
     forcePathStyle: process.env.S3_FORCE_PATH_STYLE === "true",
   },
   expirySweeperIntervalMs: Number(

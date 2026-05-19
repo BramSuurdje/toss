@@ -11,17 +11,13 @@ export const RETENTION_SECONDS: Record<Retention, number> = {
 export const PENDING_UPLOAD_TTL_SECONDS = 60 * 60
 export const DOWNLOAD_URL_TTL_SECONDS = 5 * 60
 
-/** Use multipart upload at or above this size (single PUT below). */
+/** Use multipart upload at or above this size (S3 minimum part size is 5 MB). */
 export const MULTIPART_THRESHOLD_BYTES = 32 * 1024 * 1024
-
-/** S3 minimum part size is 5 MB; 8 MB is a good default. */
 export const MULTIPART_PART_SIZE_BYTES = 8 * 1024 * 1024
-
 export const MULTIPART_UPLOAD_CONCURRENCY = 4
 
 export type ShareStatus = "pending" | "ready"
-
-export type UploadMode = "simple" | "multipart"
+export type UploadMode = "single" | "multipart"
 
 export type CompletedPart = {
   partNumber: number
@@ -46,7 +42,7 @@ export function shouldUseMultipartUpload(size: number): boolean {
   return size >= MULTIPART_THRESHOLD_BYTES
 }
 
-export function multipartPartCount(size: number): number {
+export function getMultipartPartCount(size: number): number {
   return Math.ceil(size / MULTIPART_PART_SIZE_BYTES)
 }
 

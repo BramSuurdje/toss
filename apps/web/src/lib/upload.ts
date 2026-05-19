@@ -4,37 +4,67 @@ import {
   type CompletedPart,
 } from "@workspace/shared"
 
-export function putBlobWithProgress(
-  uploadUrl: string,
+import type { ShareCreateUpload } from "@/lib/api"
+
+function uploadErrorMessage(xhr: XMLHttpRequest): string {
+  if (xhr.status === 0) {
+    return "Upload blocked (likely bucket CORS). Run: cd apps/api && bun run configure-cors"
+  }
+
+  if (xhr.status === 403) {
+    return "Upload denied (403). Check bucket credentials and presigned URL settings."
+  }
+
+  if (xhr.status >= 400) {
+    return `Upload failed (${xhr.status})`
+  }
+
+  return "Upload to storage failed"
+}
+
+function putBlob(
+  url: string,
   blob: Blob,
-  contentType: string,
-  onPartProgress?: (loaded: number, total: number) => void
+  options?: {
+    contentType?: string
+    onPartProgress?: (loaded: number) => void
+  }
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.open("PUT", uploadUrl)
-    xhr.setRequestHeader("Content-Type", contentType)
+    xhr.open("PUT", url)
+
+    if (options?.contentType) {
+      xhr.setRequestHeader("Content-Type", options.contentType)
+    }
 
     xhr.upload.addEventListener("progress", (event) => {
-      if (!event.lengthComputable) return
-      onPartProgress?.(event.loaded, event.total)
+      if (event.lengthComputable) {
+        options?.onPartProgress?.(event.loaded)
+      }
     })
 
     xhr.addEventListener("load", () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        const etag = xhr.getResponseHeader("ETag")
-        if (!etag) {
-          reject(new Error("Upload succeeded but ETag was missing"))
-          return
-        }
-        resolve(etag)
+      if (xhr.status < 200 || xhr.status >= 300) {
+        reject(new Error(uploadErrorMessage(xhr)))
         return
       }
-      reject(new Error("Upload to storage failed"))
+
+      const etag = xhr.getResponseHeader("ETag")
+      if (!etag) {
+        reject(
+          new Error(
+            "Upload finished but ETag was not returned. Add ExposeHeaders: ETag to bucket CORS (bun run configure-cors in apps/api)."
+          )
+        )
+        return
+      }
+
+      resolve(etag)
     })
 
     xhr.addEventListener("error", () => {
-      reject(new Error("Upload to storage failed"))
+      reject(new Error(uploadErrorMessage(xhr)))
     })
 
     xhr.addEventListener("abort", () => {
@@ -45,56 +75,97 @@ export function putBlobWithProgress(
   })
 }
 
-export async function uploadMultipartFile(
+export function uploadToPresignedUrl(
+  uploadUrl: string,
   file: File,
-  parts: { partNumber: number; uploadUrl: string }[],
-  partSize: number,
   onProgress?: (percent: number) => void
-): Promise<CompletedPart[]> {
-  const contentType = file.type || "application/octet-stream"
-  const partLoaded = new Array<number>(parts.length).fill(0)
-  const completed: CompletedPart[] = []
+): Promise<void> {
+  return putBlob(uploadUrl, file, {
+    contentType: file.type || "application/octet-stream",
+    onPartProgress: (loaded) => {
+      if (!onProgress) return
+      onProgress(Math.round((loaded / file.size) * 100))
+    },
+  }).then(() => {
+    onProgress?.(100)
+  })
+}
 
-  const reportProgress = () => {
-    const loaded = partLoaded.reduce((sum, value) => sum + value, 0)
-    const percent = Math.min(100, Math.round((loaded / file.size) * 100))
-    onProgress?.(percent)
-  }
+async function runPool<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length)
+  let index = 0
 
-  let nextIndex = 0
-
-  const worker = async () => {
-    while (true) {
-      const index = nextIndex
-      nextIndex += 1
-      if (index >= parts.length) return
-
-      const { partNumber, uploadUrl } = parts[index]!
-      const start = (partNumber - 1) * partSize
-      const end = Math.min(start + partSize, file.size)
-      const blob = file.slice(start, end)
-
-      const etag = await putBlobWithProgress(
-        uploadUrl,
-        blob,
-        contentType,
-        (loaded, total) => {
-          partLoaded[index] = loaded
-          reportProgress()
-        }
-      )
-
-      partLoaded[index] = blob.size
-      reportProgress()
-      completed.push({ partNumber, etag })
+  async function runWorker() {
+    while (index < items.length) {
+      const current = index++
+      results[current] = await worker(items[current]!)
     }
   }
 
-  const poolSize = Math.min(MULTIPART_UPLOAD_CONCURRENCY, parts.length)
-  await Promise.all(Array.from({ length: poolSize }, () => worker()))
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, () =>
+      runWorker()
+    )
+  )
+
+  return results
+}
+
+export async function uploadMultipart(
+  file: File,
+  upload: Extract<ShareCreateUpload, { mode: "multipart" }>,
+  onProgress?: (percent: number) => void
+): Promise<CompletedPart[]> {
+  const partBytes = new Map<number, number>()
+
+  const reportProgress = () => {
+    if (!onProgress) return
+    let loaded = 0
+    for (const bytes of partBytes.values()) {
+      loaded += bytes
+    }
+    onProgress(Math.min(100, Math.round((loaded / file.size) * 100)))
+  }
+
+  const completed = await runPool(
+    upload.parts,
+    MULTIPART_UPLOAD_CONCURRENCY,
+    async (part) => {
+      const start = (part.partNumber - 1) * MULTIPART_PART_SIZE_BYTES
+      const end = Math.min(start + MULTIPART_PART_SIZE_BYTES, file.size)
+      const blob = file.slice(start, end)
+
+      const etag = await putBlob(part.url, blob, {
+        onPartProgress: (loaded) => {
+          partBytes.set(part.partNumber, loaded)
+          reportProgress()
+        },
+      })
+
+      partBytes.set(part.partNumber, blob.size)
+      reportProgress()
+
+      return { partNumber: part.partNumber, etag }
+    }
+  )
 
   onProgress?.(100)
   return completed.sort((a, b) => a.partNumber - b.partNumber)
 }
 
-export { MULTIPART_PART_SIZE_BYTES }
+export async function uploadShare(
+  file: File,
+  upload: ShareCreateUpload,
+  onProgress?: (percent: number) => void
+): Promise<CompletedPart[] | undefined> {
+  if (upload.mode === "single") {
+    await uploadToPresignedUrl(upload.uploadUrl, file, onProgress)
+    return undefined
+  }
+
+  return uploadMultipart(file, upload, onProgress)
+}

@@ -11,7 +11,7 @@ import {
 } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
-import { MULTIPART_PART_SIZE_BYTES, multipartPartCount } from "@workspace/shared"
+import { MULTIPART_PART_SIZE_BYTES, getMultipartPartCount } from "@workspace/shared"
 
 import { env } from "../env"
 
@@ -25,6 +25,8 @@ export const s3 = new S3Client({
   forcePathStyle: env.s3.forcePathStyle,
 })
 
+const PRESIGN_EXPIRES_SECONDS = 3600
+
 export async function createUploadUrl(
   objectKey: string,
   contentType: string,
@@ -37,14 +39,14 @@ export async function createUploadUrl(
     ContentLength: size,
   })
 
-  return getSignedUrl(s3, command, { expiresIn: 3600 })
+  return getSignedUrl(s3, command, { expiresIn: PRESIGN_EXPIRES_SECONDS })
 }
 
-export async function startMultipartUpload(
+export async function createMultipartUpload(
   objectKey: string,
   contentType: string
 ): Promise<string> {
-  const result = await s3.send(
+  const response = await s3.send(
     new CreateMultipartUploadCommand({
       Bucket: env.s3.bucket,
       Key: objectKey,
@@ -52,42 +54,37 @@ export async function startMultipartUpload(
     })
   )
 
-  if (!result.UploadId) {
+  if (!response.UploadId) {
     throw new Error("Failed to start multipart upload")
   }
 
-  return result.UploadId
+  return response.UploadId
 }
 
-export async function createPartUploadUrl(
+export async function createMultipartPartUrls(
   objectKey: string,
   uploadId: string,
-  partNumber: number
-): Promise<string> {
-  const command = new UploadPartCommand({
-    Bucket: env.s3.bucket,
-    Key: objectKey,
-    UploadId: uploadId,
-    PartNumber: partNumber,
-  })
+  size: number
+): Promise<{ partSize: number; parts: { partNumber: number; url: string }[] }> {
+  const partCount = getMultipartPartCount(size)
+  const parts: { partNumber: number; url: string }[] = []
 
-  return getSignedUrl(s3, command, { expiresIn: 3600 })
-}
+  for (let partNumber = 1; partNumber <= partCount; partNumber++) {
+    const command = new UploadPartCommand({
+      Bucket: env.s3.bucket,
+      Key: objectKey,
+      UploadId: uploadId,
+      PartNumber: partNumber,
+    })
 
-export async function createAllPartUploadUrls(
-  objectKey: string,
-  uploadId: string,
-  fileSize: number
-): Promise<{ partNumber: number; uploadUrl: string }[]> {
-  const count = multipartPartCount(fileSize)
-  const parts: { partNumber: number; uploadUrl: string }[] = []
+    const url = await getSignedUrl(s3, command, {
+      expiresIn: PRESIGN_EXPIRES_SECONDS,
+    })
 
-  for (let partNumber = 1; partNumber <= count; partNumber++) {
-    const uploadUrl = await createPartUploadUrl(objectKey, uploadId, partNumber)
-    parts.push({ partNumber, uploadUrl })
+    parts.push({ partNumber, url })
   }
 
-  return parts
+  return { partSize: MULTIPART_PART_SIZE_BYTES, parts }
 }
 
 export async function completeMultipartUpload(
@@ -102,12 +99,11 @@ export async function completeMultipartUpload(
       UploadId: uploadId,
       MultipartUpload: {
         Parts: parts
-          .slice()
-          .sort((a, b) => a.partNumber - b.partNumber)
           .map((part) => ({
             PartNumber: part.partNumber,
             ETag: part.etag,
-          })),
+          }))
+          .sort((a, b) => a.PartNumber - b.PartNumber),
       },
     })
   )
@@ -167,5 +163,3 @@ export async function deleteObject(objectKey: string): Promise<void> {
     })
   )
 }
-
-export { MULTIPART_PART_SIZE_BYTES }

@@ -21,11 +21,8 @@ import { Progress } from "@workspace/ui/components/progress"
 import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
 import { Spinner } from "@workspace/ui/components/spinner"
 
-import {
-  completeShare,
-  createShare,
-  uploadShareFile,
-} from "@/lib/api"
+import { completeShare, createShare } from "@/lib/api"
+import { uploadShare } from "@/lib/upload"
 
 export function HomePage() {
   const navigate = useNavigate()
@@ -52,7 +49,7 @@ export function HomePage() {
     setUploadLabel("Preparing…")
 
     try {
-      const created = await createShare({
+      const { id, upload } = await createShare({
         filename: file.name,
         contentType: file.type || "application/octet-stream",
         size: file.size,
@@ -62,15 +59,15 @@ export function HomePage() {
       setUploadProgress(8)
       setUploadLabel("Uploading…")
 
-      const parts = await uploadShareFile(created, file, (percent) => {
+      const parts = await uploadShare(file, upload, (percent) => {
         setUploadProgress(8 + Math.round(percent * 0.87))
       })
 
       setUploadProgress(96)
       setUploadLabel("Finishing…")
-      await completeShare(created.id, parts)
+      await completeShare(id, parts)
       setUploadProgress(100)
-      navigate(`/d/${created.id}`, { replace: true })
+      navigate(`/d/${id}`, { replace: true })
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Upload failed")
     } finally {
@@ -103,7 +100,7 @@ export function HomePage() {
                 </div>
                 <p className="text-sm font-medium">Drop a file here</p>
                 <p className="text-muted-foreground text-xs">
-                  Up to 500 MB. Large files upload in parallel parts.
+                  Any file up to 500 MB. No apps, scripts, or installers.
                 </p>
                 <FileUploadTrigger asChild>
                   <Button variant="outline" type="button" size="sm">
