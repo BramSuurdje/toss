@@ -1,0 +1,76 @@
+{
+  "name": "transferflow",
+  "title": "TransferFlow",
+  "description": "Upload a Finder file to TransferFlow and copy the share link",
+  "icon": "extension-icon.png",
+  "author": "bramsuurd",
+  "categories": ["Productivity", "Developer Tools"],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "share-file",
+      "title": "Share File",
+      "description": "Upload the selected Finder file and copy the share link",
+      "mode": "no-view",
+      "keywords": ["transferflow", "upload", "share", "finder", "file"]
+    }
+  ],
+  "preferences": [
+    {
+      "name": "apiUrl",
+      "type": "textfield",
+      "required": true,
+      "title": "API URL",
+      "description": "TransferFlow API base URL (no trailing slash)",
+      "default": "https://api.transferflow.bramsuurd.nl",
+      "placeholder": "https://api.transferflow.bramsuurd.nl"
+    },
+    {
+      "name": "webUrl",
+      "type": "textfield",
+      "required": true,
+      "title": "Web App URL",
+      "description": "TransferFlow web app origin used for share links",
+      "default": "https://transferflow.bramsuurd.nl",
+      "placeholder": "https://transferflow.bramsuurd.nl"
+    },
+    {
+      "name": "retention",
+      "type": "dropdown",
+      "required": true,
+      "title": "Link validity",
+      "description": "How long the share link stays available",
+      "default": "24h",
+      "data": [
+        { "title": "15 minutes", "value": "15m" },
+        { "title": "30 minutes", "value": "30m" },
+        { "title": "1 hour", "value": "1h" },
+        { "title": "3 hours", "value": "3h" },
+        { "title": "12 hours", "value": "12h" },
+        { "title": "24 hours", "value": "24h" },
+        { "title": "3 days", "value": "3d" },
+        { "title": "7 days", "value": "7d" }
+      ]
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.83.1",
+    "@transferflow/shared": "file:../../packages/shared",
+    "mime-types": "^2.1.35"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.11",
+    "@types/mime-types": "^2.1.4",
+    "@types/node": "22.5.4",
+    "@types/react": "18.3.3",
+    "eslint": "^8.57.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  },
+  "scripts": {
+    "build": "ray build --skip-types -e dist -o dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint"
+  }
+}

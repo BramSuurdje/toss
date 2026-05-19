@@ -20,7 +20,8 @@
     "node": ">=20"
   },
   "workspaces": [
-    "apps/*",
+    "apps/api",
+    "apps/web",
     "packages/*"
   ]
 }

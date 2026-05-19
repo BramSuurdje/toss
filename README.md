@@ -66,6 +66,7 @@ Shared constants and types (retention, size limits, multipart thresholds) live i
 apps/
   api/     Hono API: shares, presigning, expiry workers
   web/     React SPA: upload UI, download page (/d/:id)
+  raycast/ Raycast extension: upload Finder selection, copy share link
 packages/
   shared/  Shared types and limits
   ui/      Reusable UI components (shadcn-style)
