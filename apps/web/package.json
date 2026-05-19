@@ -10,7 +10,7 @@
     "format": "prettier --write \"**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "start": "bunx serve dist -l ${PORT:-4173}"
+    "start": "bunx serve dist -s -l ${PORT:-4173}"
   },
   "dependencies": {
     "@workspace/shared": "workspace:*",
