@@ -8,6 +8,10 @@ export const RETENTION_SECONDS: Record<Retention, number> = {
   "7d": 7 * 24 * 60 * 60,
 }
 
+export const GITHUB_URL = "https://github.com/BramSuurdje/transferflow"
+export const BRAM_SUURD_URL =
+  "https://bramsuurd.nl?utm_source=transferflow&utm_medium=footer&utm_campaign=attribution"
+
 export const PENDING_UPLOAD_TTL_SECONDS = 60 * 60
 export const DOWNLOAD_URL_TTL_SECONDS = 5 * 60
 
@@ -104,7 +108,10 @@ export function shareRedisKey(id: string): string {
   return `share:${id}`
 }
 
-export function retentionExpiresAt(retention: Retention, fromMs = Date.now()): number {
+export function retentionExpiresAt(
+  retention: Retention,
+  fromMs = Date.now()
+): number {
   return fromMs + RETENTION_SECONDS[retention] * 1000
 }
 

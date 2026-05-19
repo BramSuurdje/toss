@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom"
 
 import { cn } from "@transferflow/ui/lib/utils"
-
-const BRAM_SUURD_URL =
-  "https://bramsuurd.nl?utm_source=transferflow&utm_medium=footer&utm_campaign=attribution"
+import { Separator } from "@transferflow/ui/components/separator"
+import { BRAM_SUURD_URL, GITHUB_URL } from "@transferflow/shared"
 
 export function AppShell({
   children,
@@ -26,17 +25,29 @@ export function AppShell({
         <main className="flex min-h-0 flex-1 flex-col justify-center">
           {children}
         </main>
-        <footer className="shrink-0 px-4 py-6 text-center text-xs text-muted-foreground">
-          Made with ❤️ by{" "}
-          <a
-            href={BRAM_SUURD_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="underline-offset-4 hover:underline"
-          >
-            Bram Suurd
-          </a>{" "}
-          In 🇳🇱
+        <footer className="flex shrink-0 justify-center gap-2 px-4 py-6 text-center text-xs text-muted-foreground">
+          <div className="shrink-0">
+            Made by{" "}
+            <a
+              href={BRAM_SUURD_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline-offset-4 hover:underline"
+            >
+              Bram Suurd
+            </a>{" "}
+          </div>
+          <Separator orientation="vertical" />
+          <div>
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline-offset-4 hover:underline"
+            >
+              Github
+            </a>
+          </div>
         </footer>
       </div>
       <aside

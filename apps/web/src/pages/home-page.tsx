@@ -182,7 +182,7 @@ export function HomePage() {
             ) : null}
           </FileUpload>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 text-sm">
             <Label htmlFor="retention">
               How long should the link be valid?
             </Label>
