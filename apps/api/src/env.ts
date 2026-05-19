@@ -6,9 +6,13 @@ function required(name: string): string {
   return value
 }
 
+function normalizeOrigin(value: string): string {
+  return value.replace(/\/+$/, "")
+}
+
 export const env = {
   port: Number(process.env.PORT ?? 3001),
-  webOrigin: required("WEB_ORIGIN"),
+  webOrigin: normalizeOrigin(required("WEB_ORIGIN")),
   redisUrl: required("REDIS_URL"),
   s3: {
     endpoint: required("S3_ENDPOINT"),
