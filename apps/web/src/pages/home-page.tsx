@@ -131,7 +131,7 @@ export function HomePage() {
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-4 px-4 py-6">
       <p className="text-center text-sm text-muted-foreground">
-        Upload a file, pick how long the link works, and share it. No account.
+        Upload a file, pick how long the link works, and share it.
       </p>
 
       <Card>
