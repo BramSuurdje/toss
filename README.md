@@ -43,7 +43,7 @@ These are the parts worth calling out if you are evaluating the codebase:
 | Area | Approach |
 |------|----------|
 | **Upload path** | Browser uploads directly to object storage via presigned URLs; the API stays out of the data plane |
-| **Large files** | Multipart S3 uploads for files ≥ 32 MB (8 MB parts, 4 concurrent); smaller files use a single PUT |
+| **Large files** | Multipart S3 uploads for files > 8 MB (8 MB parts, 4 concurrent); smaller files use a single PUT |
 | **Lifecycle** | Redis holds share metadata and an expiry index; a keyspace listener plus a sweeper fallback delete bucket objects when retention ends |
 | **Abandoned uploads** | Pending shares expire after one hour so half-finished uploads do not linger in storage |
 | **Downloads** | Presigned GET URLs are minted only when the user clicks Download (short TTL), not when the page loads |
