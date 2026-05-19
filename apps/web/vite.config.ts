@@ -23,4 +23,40 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          const normalized = id.replace(/\\/g, "/")
+
+          if (!normalized.includes("node_modules")) {
+            return
+          }
+
+          if (
+            normalized.includes("/react-dom/") ||
+            normalized.includes("/node_modules/react/")
+          ) {
+            return "react-vendor"
+          }
+          if (normalized.includes("/react-router")) {
+            return "router-vendor"
+          }
+          if (normalized.includes("/lucide-react/")) {
+            return "ui-vendor"
+          }
+          if (
+            normalized.includes("/motion-dom/") ||
+            normalized.includes("/framer-motion/") ||
+            normalized.includes("/node_modules/motion/")
+          ) {
+            return "motion-vendor"
+          }
+          if (normalized.includes("/@base-ui/")) {
+            return "base-ui-vendor"
+          }
+        },
+      },
+    },
+  },
 })

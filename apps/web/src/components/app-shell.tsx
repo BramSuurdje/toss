@@ -4,6 +4,8 @@ import { cn } from "@transferflow/ui/lib/utils"
 import { Separator } from "@transferflow/ui/components/separator"
 import { BRAM_SUURD_URL, GITHUB_URL } from "@transferflow/shared"
 
+import { UploadHistoryMenu } from "@/components/upload-history-menu"
+
 export function AppShell({
   children,
   className,
@@ -14,13 +16,17 @@ export function AppShell({
   return (
     <div className={cn("flex min-h-svh flex-col lg:flex-row", className)}>
       <div className="flex min-h-svh flex-1 flex-col lg:w-1/2 lg:min-w-0">
-        <header className="flex shrink-0 justify-center px-4 pt-8 pb-2">
+        <header className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 pt-4 pb-2">
+          <div aria-hidden className="size-8" />
           <Link
             to="/"
-            className="text-lg font-semibold tracking-tight transition-opacity hover:opacity-80"
+            className="justify-self-center text-lg font-semibold tracking-tight transition-opacity hover:opacity-80"
           >
             TransferFlow
           </Link>
+          <div className="flex justify-end">
+            <UploadHistoryMenu />
+          </div>
         </header>
         <main className="flex min-h-0 flex-1 flex-col justify-center">
           {children}

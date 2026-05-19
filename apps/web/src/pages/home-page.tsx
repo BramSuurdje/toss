@@ -2,6 +2,7 @@ import {
   MAX_FILE_SIZE_BYTES,
   RETENTION_LABELS,
   RETENTION_OPTIONS,
+  retentionExpiresAt,
   type Retention,
 } from "@transferflow/shared"
 import { Upload, X } from "lucide-react"
@@ -33,6 +34,7 @@ import {
 } from "@transferflow/ui/components/upload-button"
 
 import { completeShare, createShare } from "@/lib/api"
+import { addUploadHistoryEntry } from "@/lib/upload-history"
 import { uploadShare } from "@/lib/upload"
 import { toast } from "@transferflow/ui/components/toast"
 import { useNavigate } from "react-router-dom"
@@ -137,6 +139,11 @@ export function HomePage() {
         label: "Finishing…",
       })
       await completeShare(id, parts)
+      addUploadHistoryEntry({
+        id,
+        filename: file.name,
+        expiresAt: retentionExpiresAt(retention),
+      })
       dispatchUploadUi({ type: "success" })
       await wait(SUCCESS_HOLD_MS)
       navigate(`/d/${id}`, { replace: true })
