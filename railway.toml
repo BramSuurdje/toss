@@ -1,0 +1,7 @@
+# TransferFlow — deploy as two Railway services from this repo:
+# 1. API  - root directory apps/api,  start: bun run start
+# 2. Web  - root directory apps/web,  build: bun run build, start: bunx serve dist -l $PORT
+#
+# Add Redis and a bucket (S3-compatible) in the same Railway project.
+# Wire REDIS_URL and S3_* env vars on the API service.
+# Set WEB_ORIGIN to the web service public URL and VITE_API_URL to the API URL at web build time.

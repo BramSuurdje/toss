@@ -1,0 +1,26 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target bun",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.888.0",
+    "@aws-sdk/s3-request-presigner": "^3.888.0",
+    "@hono/zod-validator": "^0.7.6",
+    "@paralleldrive/cuid2": "^2.2.2",
+    "@workspace/shared": "workspace:*",
+    "hono": "^4.9.6",
+    "ioredis": "^5.7.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.2.22",
+    "typescript": "^5.9.3"
+  }
+}
