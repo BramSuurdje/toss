@@ -15,7 +15,6 @@ export function NewUploadLink({
       variant={variant}
       className={cn("w-full", className)}
       render={<Link to="/" />}
-      nativeButton={false}
     >
       New upload
     </Button>
