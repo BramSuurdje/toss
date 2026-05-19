@@ -1,4 +1,9 @@
-import { MAX_FILE_SIZE_BYTES, type Retention } from "@transferflow/shared"
+import {
+  MAX_FILE_SIZE_BYTES,
+  RETENTION_LABELS,
+  RETENTION_OPTIONS,
+  type Retention,
+} from "@transferflow/shared"
 import { Upload, X } from "lucide-react"
 import * as React from "react"
 
@@ -16,9 +21,12 @@ import {
 } from "@transferflow/ui/components/file-upload"
 import { Label } from "@transferflow/ui/components/label"
 import {
-  RadioGroup,
-  RadioGroupItem,
-} from "@transferflow/ui/components/radio-group"
+  Select,
+  SelectItem,
+  SelectPopup,
+  SelectTrigger,
+  SelectValue,
+} from "@transferflow/ui/components/select"
 import {
   UploadButton,
   type UploadButtonPhase,
@@ -196,22 +204,24 @@ export function HomePage() {
             <Label htmlFor="retention">
               How long should the link be valid?
             </Label>
-            <RadioGroup
-              id="retention"
+            <Select
               value={retention}
-              onValueChange={(value) => setRetention(value as Retention)}
-              className="flex gap-4"
+              onValueChange={(value) => {
+                if (value) setRetention(value as Retention)
+              }}
               disabled={isUploading}
             >
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="24h" id="retention-24h" />
-                <Label htmlFor="retention-24h">24 hours</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <RadioGroupItem value="7d" id="retention-7d" />
-                <Label htmlFor="retention-7d">7 days</Label>
-              </div>
-            </RadioGroup>
+              <SelectTrigger size="sm" id="retention" className="w-fit min-w-28">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectPopup>
+                {RETENTION_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {RETENTION_LABELS[option]}
+                  </SelectItem>
+                ))}
+              </SelectPopup>
+            </Select>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">

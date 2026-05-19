@@ -1,10 +1,36 @@
 export const MAX_FILE_SIZE_BYTES = 500 * 1024 * 1024
 
-export const RETENTION_OPTIONS = ["24h", "7d"] as const
+export const RETENTION_OPTIONS = [
+  "15m",
+  "30m",
+  "1h",
+  "3h",
+  "12h",
+  "24h",
+  "3d",
+  "7d",
+] as const
 export type Retention = (typeof RETENTION_OPTIONS)[number]
 
+export const RETENTION_LABELS: Record<Retention, string> = {
+  "15m": "15 min",
+  "30m": "30 min",
+  "1h": "1 hour",
+  "3h": "3 hours",
+  "12h": "12 hours",
+  "24h": "24 hours",
+  "3d": "3 days",
+  "7d": "7 days",
+}
+
 export const RETENTION_SECONDS: Record<Retention, number> = {
+  "15m": 15 * 60,
+  "30m": 30 * 60,
+  "1h": 60 * 60,
+  "3h": 3 * 60 * 60,
+  "12h": 12 * 60 * 60,
   "24h": 24 * 60 * 60,
+  "3d": 3 * 24 * 60 * 60,
   "7d": 7 * 24 * 60 * 60,
 }
 
