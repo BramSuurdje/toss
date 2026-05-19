@@ -4,4 +4,6 @@
 #
 # Add Redis and a bucket (S3-compatible) in the same Railway project.
 # Wire REDIS_URL and S3_* env vars on the API service.
-# Set WEB_ORIGIN to the web service public URL and VITE_API_URL to the API URL at web build time.
+# API service:  WEB_ORIGIN=https://transferflow.bramsuurd.nl
+# Web service:  VITE_API_URL=https://api.transferflow.bramsuurd.nl  (rebuild after changing)
+# After first deploy: cd apps/api && railway run --service api bun run configure-cors
