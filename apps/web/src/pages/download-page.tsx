@@ -14,14 +14,15 @@ import {
   EmptyTitle,
 } from "@transferflow/ui/components/empty"
 import { Spinner } from "@transferflow/ui/components/spinner"
-import { toastManager } from "@transferflow/ui/components/toast"
+import { toast, toastManager } from "@transferflow/ui/components/toast"
 import type { SharePublic } from "@transferflow/shared"
-import { Copy, Download } from "lucide-react"
+import { Check, Copy, Download } from "lucide-react"
 import * as React from "react"
 import { useParams } from "react-router-dom"
 
 import { NewUploadLink } from "@/components/new-upload-link"
 import { getDownloadUrl, getShare, sharePageUrl } from "@/lib/api"
+import { useCopyToClipboard } from "@transferflow/ui/hooks/use-copy-to-clipboard"
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B"
@@ -77,6 +78,7 @@ function ShareDownloadView({ id }: { id: string }) {
     status: "loading",
   })
   const [isDownloading, setIsDownloading] = React.useState(false)
+  const { copyToClipboard, isCopied } = useCopyToClipboard()
 
   React.useEffect(() => {
     let cancelled = false
@@ -98,15 +100,6 @@ function ShareDownloadView({ id }: { id: string }) {
       cancelled = true
     }
   }, [id])
-
-  const onCopyLink = async () => {
-    toastManager.promise(navigator.clipboard.writeText(sharePageUrl(id)), {
-      success: "Copied to clipboard",
-      error: (error) =>
-        error instanceof Error ? error.message : "Failed to copy to clipboard",
-      loading: "Copying to clipboard…",
-    })
-  }
 
   const onDownload = async () => {
     setIsDownloading(true)
@@ -171,10 +164,11 @@ function ShareDownloadView({ id }: { id: string }) {
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => void onCopyLink()}
+            onClick={() => void copyToClipboard(sharePageUrl(id))}
+            disabled={isCopied}
           >
-            <Copy data-icon="inline-start" />
-            Copy link
+            {isCopied ? <Check className="size-4" data-icon="inline-start" /> : <Copy className="size-4" data-icon="inline-start" />}
+            {isCopied ? <span className="text-sm">Copied</span> : <span className="text-sm">Copy link</span>}
           </Button>
           <NewUploadLink />
         </CardFooter>
