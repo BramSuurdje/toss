@@ -60,6 +60,15 @@
     --animate-toast-success-even: toast-success-even 0.32s cubic-bezier(0.5, 1, 0.89, 1);
     --animate-toast-error-odd: toast-error-odd 0.28s cubic-bezier(0.5, 1, 0.89, 1);
     --animate-toast-error-even: toast-error-even 0.28s cubic-bezier(0.5, 1, 0.89, 1);
+    --animate-upload-button-shine: upload-button-shine 2.2s linear infinite;
+  @keyframes upload-button-shine {
+  0% {
+    transform: translateX(-120%);
+        }
+  100% {
+    transform: translateX(420%);
+        }
+    }
   @keyframes toast-success-odd {
   0% {
     scale: 1;
@@ -140,6 +149,12 @@
   --accent: oklch(0.96 0.002 17.2);
   --accent-foreground: oklch(0.214 0.009 43.1);
   --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.527 0.154 150.069);
+  --success-foreground: oklch(0.982 0.018 155.826);
+  --info: oklch(0.546 0.198 252.665);
+  --info-foreground: oklch(0.985 0.014 254.604);
+  --warning: oklch(0.681 0.162 75.834);
+  --warning-foreground: oklch(0.987 0.026 102.212);
   --border: oklch(0.922 0.005 34.3);
   --input: oklch(0.922 0.005 34.3);
   --ring: oklch(0.714 0.014 41.2);
@@ -176,6 +191,12 @@
   --accent: oklch(0.268 0.011 36.5);
   --accent-foreground: oklch(0.986 0.002 67.8);
   --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.596 0.145 163.225);
+  --success-foreground: oklch(0.982 0.018 155.826);
+  --info: oklch(0.623 0.188 259.815);
+  --info-foreground: oklch(0.985 0.014 254.604);
+  --warning: oklch(0.738 0.151 74.706);
+  --warning-foreground: oklch(0.987 0.026 102.212);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.547 0.021 43.1);

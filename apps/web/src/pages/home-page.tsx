@@ -15,20 +15,24 @@ import {
   FileUploadTrigger,
 } from "@transferflow/ui/components/file-upload"
 import { Label } from "@transferflow/ui/components/label"
-import { Progress } from "@transferflow/ui/components/progress"
 import {
   RadioGroup,
   RadioGroupItem,
 } from "@transferflow/ui/components/radio-group"
-import { Spinner } from "@transferflow/ui/components/spinner"
+import {
+  UploadButton,
+  type UploadButtonPhase,
+} from "@transferflow/ui/components/upload-button"
 
 import { completeShare, createShare } from "@/lib/api"
 import { uploadShare } from "@/lib/upload"
 import { toast } from "@transferflow/ui/components/toast"
 import { useNavigate } from "react-router-dom"
 
+const SUCCESS_HOLD_MS = 720
+
 type UploadUiState = {
-  isUploading: boolean
+  phase: UploadButtonPhase
   progress: number
   label: string
 }
@@ -36,10 +40,11 @@ type UploadUiState = {
 type UploadUiAction =
   | { type: "start" }
   | { type: "progress"; progress: number; label: string }
+  | { type: "success" }
   | { type: "reset" }
 
 const initialUploadUi: UploadUiState = {
-  isUploading: false,
+  phase: "idle",
   progress: 0,
   label: "",
 }
@@ -50,18 +55,26 @@ function uploadUiReducer(
 ): UploadUiState {
   switch (action.type) {
     case "start":
-      return { isUploading: true, progress: 0, label: "Preparing…" }
+      return { phase: "uploading", progress: 0, label: "Preparing…" }
     case "progress":
       return {
         ...state,
         progress: action.progress,
         label: action.label,
       }
+    case "success":
+      return { ...state, phase: "success", progress: 100, label: "Done" }
     case "reset":
       return initialUploadUi
     default:
       return state
   }
+}
+
+function wait(ms: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms)
+  })
 }
 
 export function HomePage() {
@@ -74,6 +87,7 @@ export function HomePage() {
   )
 
   const file = files[0] ?? null
+  const isUploading = uploadUi.phase !== "idle"
 
   const onFileReject = React.useCallback((rejected: File, message: string) => {
     toast.error(message, { description: rejected.name })
@@ -115,15 +129,11 @@ export function HomePage() {
         label: "Finishing…",
       })
       await completeShare(id, parts)
-      dispatchUploadUi({
-        type: "progress",
-        progress: 100,
-        label: "Finishing…",
-      })
+      dispatchUploadUi({ type: "success" })
+      await wait(SUCCESS_HOLD_MS)
       navigate(`/d/${id}`, { replace: true })
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Upload failed")
-    } finally {
       dispatchUploadUi({ type: "reset" })
     }
   }
@@ -140,7 +150,7 @@ export function HomePage() {
             maxFiles={1}
             maxSize={MAX_FILE_SIZE_BYTES}
             value={files}
-            disabled={uploadUi.isUploading}
+            disabled={isUploading}
             onValueChange={setFiles}
             onFileReject={onFileReject}
           >
@@ -191,6 +201,7 @@ export function HomePage() {
               value={retention}
               onValueChange={(value) => setRetention(value as Retention)}
               className="flex gap-4"
+              disabled={isUploading}
             >
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="24h" id="retention-24h" />
@@ -202,31 +213,16 @@ export function HomePage() {
               </div>
             </RadioGroup>
           </div>
-          {uploadUi.isUploading ? (
-            <div className="flex flex-col gap-2">
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>{uploadUi.label}</span>
-                <span>{uploadUi.progress}%</span>
-              </div>
-              <Progress value={uploadUi.progress} />
-            </div>
-          ) : null}
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
-          <Button
+          <UploadButton
             className="w-full"
-            disabled={!file || uploadUi.isUploading}
+            disabled={!file}
+            phase={uploadUi.phase}
+            progress={uploadUi.progress}
+            label={uploadUi.label}
             onClick={() => void onShare()}
-          >
-            {uploadUi.isUploading ? (
-              <>
-                <Spinner data-icon="inline-start" />
-                Uploading
-              </>
-            ) : (
-              "Upload"
-            )}
-          </Button>
+          />
         </CardFooter>
       </Card>
     </div>
