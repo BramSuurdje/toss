@@ -18,7 +18,10 @@ import {
 } from "@workspace/ui/components/file-upload"
 import { Label } from "@workspace/ui/components/label"
 import { Progress } from "@workspace/ui/components/progress"
-import { RadioGroup, RadioGroupItem } from "@workspace/ui/components/radio-group"
+import {
+  RadioGroup,
+  RadioGroupItem,
+} from "@workspace/ui/components/radio-group"
 import { Spinner } from "@workspace/ui/components/spinner"
 
 import { completeShare, createShare } from "@/lib/api"
@@ -79,7 +82,7 @@ export function HomePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-4 px-4 py-6">
-      <p className="text-muted-foreground text-center text-sm">
+      <p className="text-center text-sm text-muted-foreground">
         Upload a file, pick how long the link works, and share it. No account.
       </p>
 
@@ -99,7 +102,7 @@ export function HomePage() {
                   <Upload />
                 </div>
                 <p className="text-sm font-medium">Drop a file here</p>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-xs text-muted-foreground">
                   Any file up to 500 MB. No apps, scripts, or installers.
                 </p>
                 <FileUploadTrigger asChild>
@@ -131,23 +134,29 @@ export function HomePage() {
             ) : null}
           </FileUpload>
 
-          <RadioGroup
-            value={retention}
-            onValueChange={(value) => setRetention(value as Retention)}
-            className="flex gap-4"
-          >
-            <div className="flex items-center gap-2">
-              <RadioGroupItem value="24h" id="retention-24h" />
-              <Label htmlFor="retention-24h">24 hours</Label>
-            </div>
-            <div className="flex items-center gap-2">
-              <RadioGroupItem value="7d" id="retention-7d" />
-              <Label htmlFor="retention-7d">7 days</Label>
-            </div>
-          </RadioGroup>
+          <div className="flex flex-col gap-3">
+            <Label htmlFor="retention">
+              How long should the link be valid?
+            </Label>
+            <RadioGroup
+              id="retention"
+              value={retention}
+              onValueChange={(value) => setRetention(value as Retention)}
+              className="flex gap-4"
+            >
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="24h" id="retention-24h" />
+                <Label htmlFor="retention-24h">24 hours</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="7d" id="retention-7d" />
+                <Label htmlFor="retention-7d">7 days</Label>
+              </div>
+            </RadioGroup>
+          </div>
           {isUploading ? (
             <div className="flex flex-col gap-2">
-              <div className="text-muted-foreground flex justify-between text-xs">
+              <div className="flex justify-between text-xs text-muted-foreground">
                 <span>{uploadLabel}</span>
                 <span>{uploadProgress}%</span>
               </div>
