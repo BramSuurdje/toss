@@ -23,5 +23,8 @@
     "apps/api",
     "apps/web",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "transferflow": "."
+  }
 }
