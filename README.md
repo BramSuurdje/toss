@@ -1,6 +1,8 @@
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/da0efa98-e470-4b30-a14a-b5b4d72fd4ff" />
+
 # TransferFlow
 
-A small, production-style file-sharing app: upload a file, pick how long it should stay online, and share a link. No sign-up, no accounts, no file bytes through the API.
+A small file-sharing app: upload a file, pick how long it should stay online, and share a link. No sign-up, no accounts, no file bytes through the API.
 
 Built as a TypeScript monorepo to practice real-world patterns—presigned object storage, Redis-backed lifecycle, multipart uploads, and a split web/API deployment.
 
