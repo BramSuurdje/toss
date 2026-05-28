@@ -102,6 +102,20 @@ The API container always connects to Redis at `redis://redis:6379`. `REDIS_PORT`
 
 Inside Docker the API always listens on **3001**; use `API_PORT` to choose the host-facing port. Do not set `PORT` in `.env` for compose (the web container proxies to `api:3001`).
 
+### Caddy (public HTTPS)
+
+Run Caddy on the host and keep compose bound to localhost (`WEB_HOST` / `API_HOST` default to `127.0.0.1`). Build the web image with the API under `/api`:
+
+```bash
+# in .env
+VITE_API_URL=/api
+WEB_ORIGIN=https://toss.bramsuurd.nl
+
+docker compose --profile storage up -d --build
+```
+
+See [deploy/Caddyfile.example](./deploy/Caddyfile.example). `handle_path /api/*` strips the prefix so `/api/shares` hits the API as `/shares`. Reload Caddy after editing the site block.
+
 Open http://localhost:8080. The web container proxies `/shares` and `/health` to the API, so you do not need `VITE_API_URL` in the image.
 
 `minio-init` creates the bucket. Community MinIO CORS is global — set `MINIO_API_CORS_ALLOW_ORIGIN` in `.env` (defaults include :8080 and :5173). For Railway or other S3 providers, run `cd apps/api && bun run configure-cors` after deploy.

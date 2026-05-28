@@ -1,0 +1,21 @@
+# Example: Caddy on the same host as `docker compose`.
+# Copy to /etc/caddy/Caddyfile (or import from your site block).
+#
+# Prerequisites:
+# - Compose publishes web on 127.0.0.1:8080 and api on 127.0.0.1:3001
+# - Web image built with VITE_API_URL=/api
+# - API .env: WEB_ORIGIN=https://toss.bramsuurd.nl
+
+toss.bramsuurd.nl {
+	encode gzip
+
+	# /api/health -> api:3001/health, /api/shares -> api:3001/shares
+	handle_path /api/* {
+		reverse_proxy 127.0.0.1:3001
+	}
+
+	# SPA (static files from the web container)
+	handle {
+		reverse_proxy 127.0.0.1:8080
+	}
+}
