@@ -25,9 +25,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      minio:
-        condition: service_started
-        required: false
     restart: unless-stopped
 
   redis:
