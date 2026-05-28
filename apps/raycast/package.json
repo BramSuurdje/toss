@@ -4,6 +4,7 @@
   "description": "Upload a Finder file to Toss and copy the share link",
   "icon": "extension-icon.png",
   "author": "bramsuurdje",
+  "version": "v1.0.1",
   "owner": "blb-solutions",
   "categories": [
     "Productivity",
