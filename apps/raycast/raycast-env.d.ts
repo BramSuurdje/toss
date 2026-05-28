@@ -8,9 +8,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 type ExtensionPreferences = {
-  /** API URL - TransferFlow API base URL (no trailing slash) */
+  /** API URL - Toss API base URL (no trailing slash) */
   "apiUrl": string,
-  /** Web App URL - TransferFlow web app origin used for share links */
+  /** Web App URL - Toss web app origin used for share links */
   "webUrl": string,
   /** Link validity - How long the share link stays available */
   "retention": "15m" | "30m" | "1h" | "3h" | "12h" | "24h" | "3d" | "7d"

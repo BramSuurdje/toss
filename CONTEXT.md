@@ -1,4 +1,4 @@
-# TransferFlow
+# Toss
 
 Anonymous file transfers: upload a file, pick how long it lives (24 hours or 7 days), get a shareable link. No accounts or authentication.
 
@@ -6,7 +6,7 @@ Anonymous file transfers: upload a file, pick how long it lives (24 hours or 7 d
 
 **Share**:
 A single uploaded file exposed at one public link until its retention period ends.
-_Avoid_: Send, package (product name is TransferFlow; domain object remains **Share**)
+_Avoid_: Send, package (product name is Toss; domain object remains **Share**)
 
 **Share link**:
 The public URL for a Share, identified by a CUID in the path.

@@ -1,7 +1,7 @@
-const STORAGE_KEY = "transferflow:upload-history"
+const STORAGE_KEY = "toss:upload-history"
 const MAX_ENTRIES = 50
 
-export const UPLOAD_HISTORY_CHANGED = "transferflow:upload-history-changed"
+export const UPLOAD_HISTORY_CHANGED = "toss:upload-history-changed"
 
 export type UploadHistoryEntry = {
   id: string

@@ -23,7 +23,7 @@ export function AppShell({
             to="/"
             className="justify-self-center text-lg font-semibold tracking-tight transition-opacity hover:opacity-80"
           >
-            TransferFlow
+            Toss
           </Link>
           <div className="flex justify-end">
             <UploadHistoryMenu />

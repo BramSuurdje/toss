@@ -36,7 +36,7 @@ export const RETENTION_SECONDS: Record<Retention, number> = {
 
 export const GITHUB_URL = "https://github.com/BramSuurdje/transferflow"
 export const BRAM_SUURD_URL =
-  "https://bramsuurd.nl?utm_source=transferflow&utm_medium=footer&utm_campaign=attribution"
+  "https://bramsuurd.nl?utm_source=toss&utm_medium=footer&utm_campaign=attribution"
 
 export const PENDING_UPLOAD_TTL_SECONDS = 60 * 60
 export const DOWNLOAD_URL_TTL_SECONDS = 5 * 60

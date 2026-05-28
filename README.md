@@ -1,4 +1,4 @@
-# TransferFlow
+# Toss
 
 A small, production-style file-sharing app: upload a file, pick how long it should stay online, and share a link. No sign-up, no accounts, no file bytes through the API.
 

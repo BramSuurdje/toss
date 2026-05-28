@@ -1,4 +1,4 @@
-# TransferFlow — deploy as two Railway services from this repo:
+# Toss — deploy as two Railway services from this repo:
 # 1. API  - root directory apps/api,  start: bun run start
 # 2. Web  - root directory apps/web,  build: bun run build, start: bun run start (serve -s for SPA routes)
 #

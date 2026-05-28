@@ -1,6 +1,6 @@
-# TransferFlow Raycast Extension
+# Toss Raycast Extension
 
-Upload the file selected in Finder to TransferFlow and copy the share link to your clipboard.
+Upload the file selected in Finder to Toss and copy the share link to your clipboard.
 
 ## Setup
 
@@ -19,7 +19,7 @@ Upload the file selected in Finder to TransferFlow and copy the share link to yo
 
 3. Open Raycast and run **Share File**.
 
-4. In Raycast → Extensions → TransferFlow → Preferences, set:
+4. In Raycast → Extensions → Toss → Preferences, set:
    - **API URL** — e.g. `https://api.transferflow.bramsuurd.nl` or `http://localhost:3001` for local dev
    - **Web App URL** — e.g. `https://transferflow.bramsuurd.nl` or `http://localhost:5173` for local dev
    - **Link validity** — default retention for uploads
@@ -28,11 +28,11 @@ Upload the file selected in Finder to TransferFlow and copy the share link to yo
 
 1. Select a file in Finder.
 2. Open Raycast and run **Share File** (assign a hotkey in Raycast preferences if you like).
-3. The file uploads via the TransferFlow API; the share link is copied to your clipboard.
+3. The file uploads via the Toss API; the share link is copied to your clipboard.
 
 ## Local development
 
-With TransferFlow running locally (`bun run dev` from the repo root):
+With Toss running locally (`bun run dev` from the repo root):
 
 - API URL: `http://localhost:3001`
 - Web App URL: `http://localhost:5173`
