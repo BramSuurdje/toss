@@ -19,6 +19,8 @@ services:
     env_file:
       - .env
     environment:
+      # Fixed in-container port (healthcheck, web nginx proxy, and API_PORT host mapping).
+      PORT: 3001
       # Container-to-container: always port 6379 on the redis service.
       # REDIS_PORT in .env only changes the host-published port, not this URL.
       REDIS_URL: redis://redis:6379

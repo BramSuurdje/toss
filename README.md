@@ -100,6 +100,8 @@ docker compose --profile storage up --build
 
 The API container always connects to Redis at `redis://redis:6379`. `REDIS_PORT` in `.env` only changes the port exposed on your host — do not put that port in `REDIS_URL` for Docker.
 
+Inside Docker the API always listens on **3001**; use `API_PORT` to choose the host-facing port. Do not set `PORT` in `.env` for compose (the web container proxies to `api:3001`).
+
 Open http://localhost:8080. The web container proxies `/shares` and `/health` to the API, so you do not need `VITE_API_URL` in the image.
 
 `minio-init` creates the bucket. Community MinIO CORS is global — set `MINIO_API_CORS_ALLOW_ORIGIN` in `.env` (defaults include :8080 and :5173). For Railway or other S3 providers, run `cd apps/api && bun run configure-cors` after deploy.
