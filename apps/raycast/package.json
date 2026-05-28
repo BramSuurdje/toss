@@ -18,6 +18,7 @@
       "mode": "no-view",
       "keywords": [
         "toss",
+        "transferflow",
         "upload",
         "share",
         "finder",
@@ -27,22 +28,13 @@
   ],
   "preferences": [
     {
-      "name": "apiUrl",
-      "type": "textfield",
-      "required": true,
-      "title": "API URL",
-      "description": "Toss API base URL (no trailing slash)",
-      "default": "https://api.transferflow.bramsuurd.nl",
-      "placeholder": "https://api.transferflow.bramsuurd.nl"
-    },
-    {
       "name": "webUrl",
       "type": "textfield",
       "required": true,
       "title": "Web App URL",
-      "description": "Toss web app origin used for share links",
-      "default": "https://transferflow.bramsuurd.nl",
-      "placeholder": "https://transferflow.bramsuurd.nl"
+      "description": "Toss site URL (no trailing slash). API calls use /api on this host, or localhost:3001 when developing locally.",
+      "default": "https://toss.bramsuurd.nl",
+      "placeholder": "https://toss.bramsuurd.nl"
     },
     {
       "name": "retention",
