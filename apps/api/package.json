@@ -7,6 +7,7 @@
     "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js",
     "build": "bun build src/index.ts --outdir dist --target bun --minify",
+    "configure-cors": "bun run scripts/configure-cors.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

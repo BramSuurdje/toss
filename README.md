@@ -81,10 +81,25 @@ Domain language and product decisions (what a “share” is, retention rules, e
 Requires Docker (Redis + MinIO), Bun, and env files from the examples.
 
 ```bash
-docker compose up -d
+docker compose --profile storage up -d redis minio minio-init
 cp apps/api/.env.example apps/api/.env
 bun install
 bun run dev
 ```
 
 Open http://localhost:5173 — the Vite dev server proxies API routes to the backend on port 3001.
+
+## Self-host with Docker
+
+Runs the web app, API, Redis, and optional local MinIO from this repo.
+
+```bash
+cp .env.example .env
+docker compose --profile storage up --build
+```
+
+Open http://localhost:8080. The web container proxies `/shares` and `/health` to the API, so you do not need `VITE_API_URL` in the image.
+
+`minio-init` creates the bucket. Community MinIO CORS is global — set `MINIO_API_CORS_ALLOW_ORIGIN` in `.env` (defaults include :8080 and :5173). For Railway or other S3 providers, run `cd apps/api && bun run configure-cors` after deploy.
+
+For local dev, only infrastructure: `docker compose --profile storage up -d redis minio minio-init` (same as above without building `web` / `api`).

@@ -1,5 +1,7 @@
 /**
  * One-time bucket CORS setup for browser presigned PUT / multipart uploads.
+ * (S3-compatible providers with bucket CORS support, e.g. Railway. Community MinIO
+ * uses MINIO_API_CORS_ALLOW_ORIGIN instead — see root .env.example.)
  *
  * Usage (from apps/api, with .env filled in):
  *   bun run scripts/configure-cors.ts

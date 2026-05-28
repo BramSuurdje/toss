@@ -15,14 +15,25 @@ import { MULTIPART_PART_SIZE_BYTES, getMultipartPartCount } from "@transferflow/
 
 import { env } from "../env"
 
-export const s3 = new S3Client({
+const s3Credentials = {
+  accessKeyId: env.s3.accessKeyId,
+  secretAccessKey: env.s3.secretAccessKey,
+}
+
+const s3ClientConfig = {
   region: env.s3.region,
-  endpoint: env.s3.endpoint,
-  credentials: {
-    accessKeyId: env.s3.accessKeyId,
-    secretAccessKey: env.s3.secretAccessKey,
-  },
+  credentials: s3Credentials,
   forcePathStyle: env.s3.forcePathStyle,
+}
+
+export const s3 = new S3Client({
+  ...s3ClientConfig,
+  endpoint: env.s3.endpoint,
+})
+
+const s3Presign = new S3Client({
+  ...s3ClientConfig,
+  endpoint: env.s3.publicEndpoint,
 })
 
 const PRESIGN_EXPIRES_SECONDS = 3600
@@ -39,7 +50,7 @@ export async function createUploadUrl(
     ContentLength: size,
   })
 
-  return getSignedUrl(s3, command, { expiresIn: PRESIGN_EXPIRES_SECONDS })
+  return getSignedUrl(s3Presign, command, { expiresIn: PRESIGN_EXPIRES_SECONDS })
 }
 
 export async function createMultipartUpload(
@@ -77,7 +88,7 @@ export async function createMultipartPartUrls(
       PartNumber: partNumber,
     })
 
-    const url = await getSignedUrl(s3, command, {
+    const url = await getSignedUrl(s3Presign, command, {
       expiresIn: PRESIGN_EXPIRES_SECONDS,
     })
 
@@ -147,7 +158,7 @@ export async function createDownloadUrl(
     ResponseContentType: contentType,
   })
 
-  return getSignedUrl(s3, command, { expiresIn: 300 })
+  return getSignedUrl(s3Presign, command, { expiresIn: 300 })
 }
 
 export async function objectExists(objectKey: string): Promise<boolean> {

@@ -16,6 +16,8 @@ export const env = {
   redisUrl: required("REDIS_URL"),
   s3: {
     endpoint: required("S3_ENDPOINT"),
+    /** Browser-reachable endpoint for presigned URLs (defaults to S3_ENDPOINT). */
+    publicEndpoint: process.env.S3_PUBLIC_ENDPOINT ?? required("S3_ENDPOINT"),
     region: process.env.S3_REGION ?? "auto",
     bucket: required("S3_BUCKET"),
     accessKeyId: required("S3_ACCESS_KEY_ID"),
