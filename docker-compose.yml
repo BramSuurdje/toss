@@ -18,6 +18,10 @@ services:
       - "${API_PORT:-3001}:3001"
     env_file:
       - .env
+    environment:
+      # Container-to-container: always port 6379 on the redis service.
+      # REDIS_PORT in .env only changes the host-published port, not this URL.
+      REDIS_URL: redis://redis:6379
     depends_on:
       redis:
         condition: service_healthy
