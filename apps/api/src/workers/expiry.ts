@@ -7,8 +7,7 @@ async function handleExpiredShareKey(key: string): Promise<void> {
   const id = key.replace(/^share:/, "")
   if (!id) return
 
-  const record = await getShareRecord(id)
-  await purgeShare(id, record)
+  await purgeShare(id)
 }
 
 export function startKeyspaceExpiryListener(): void {

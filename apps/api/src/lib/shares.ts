@@ -183,17 +183,16 @@ export async function createShareDownloadUrl(id: string) {
 
 export async function purgeShare(id: string, record?: ShareRecord | null) {
   const share = record ?? (await getShareRecord(id))
+  const objectKey = share?.objectKey ?? objectKeyForShare(id)
 
-  if (share) {
-    if (share.multipartUploadId) {
-      await abortMultipartUpload(share.objectKey, share.multipartUploadId)
-    }
+  if (share?.multipartUploadId) {
+    await abortMultipartUpload(objectKey, share.multipartUploadId)
+  }
 
-    try {
-      await deleteObject(share.objectKey)
-    } catch (error) {
-      console.error(`Failed to delete object for share ${id}`, error)
-    }
+  try {
+    await deleteObject(objectKey)
+  } catch (error) {
+    console.error(`Failed to delete object for share ${id}`, error)
   }
 
   await redis.del(shareRedisKey(id))
