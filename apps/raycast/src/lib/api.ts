@@ -1,4 +1,8 @@
-import type { CompletedPart, Retention } from "@transferflow/shared"
+import {
+  INTERNAL_API_KEY_HEADER,
+  type CompletedPart,
+  type Retention,
+} from "@transferflow/shared"
 
 type ApiError = {
   error: string
@@ -24,8 +28,19 @@ async function parseJson<T>(response: Response): Promise<T> {
   return data as T
 }
 
-export function createApiClient(apiUrl: string) {
+function requestHeaders(internalApiKey?: string): Record<string, string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  }
+  if (internalApiKey) {
+    headers[INTERNAL_API_KEY_HEADER] = internalApiKey
+  }
+  return headers
+}
+
+export function createApiClient(apiUrl: string, internalApiKey?: string) {
   const base = apiUrl.replace(/\/$/, "")
+  const headers = () => requestHeaders(internalApiKey)
 
   return {
     async createShare(input: {
@@ -36,7 +51,7 @@ export function createApiClient(apiUrl: string) {
     }): Promise<{ id: string; upload: ShareCreateUpload }> {
       const response = await fetch(`${base}/shares`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers(),
         body: JSON.stringify(input),
       })
       return parseJson(response)
@@ -48,7 +63,7 @@ export function createApiClient(apiUrl: string) {
     ): Promise<{ share: { id: string; filename: string } }> {
       const response = await fetch(`${base}/shares/${id}/complete`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: headers(),
         body: JSON.stringify(parts?.length ? { parts } : {}),
       })
       return parseJson(response)

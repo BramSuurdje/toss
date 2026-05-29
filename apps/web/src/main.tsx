@@ -7,7 +7,10 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 
 import { ThemeProvider } from "@/components/theme-provider.tsx"
+import { captureInternalKeyFromUrl } from "@/lib/internal-key"
 import { App } from "./App.tsx"
+
+captureInternalKeyFromUrl()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

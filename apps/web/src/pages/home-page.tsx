@@ -34,6 +34,7 @@ import {
 } from "@transferflow/ui/components/upload-button"
 
 import { completeShare, createShare } from "@/lib/api"
+import { hasUnlimitedUpload } from "@/lib/internal-key"
 import { addUploadHistoryEntry } from "@/lib/upload-history"
 import { uploadShare } from "@/lib/upload"
 import { toast } from "@transferflow/ui/components/toast"
@@ -98,6 +99,7 @@ export function HomePage() {
 
   const file = files[0] ?? null
   const isUploading = uploadUi.phase !== "idle"
+  const unlimitedUpload = hasUnlimitedUpload()
 
   const onFileReject = React.useCallback((rejected: File, message: string) => {
     toast.error(message, { description: rejected.name })
@@ -163,7 +165,7 @@ export function HomePage() {
         <CardContent className="flex flex-col gap-6 pt-6">
           <FileUpload
             maxFiles={1}
-            maxSize={MAX_FILE_SIZE_BYTES}
+            maxSize={unlimitedUpload ? undefined : MAX_FILE_SIZE_BYTES}
             value={files}
             disabled={isUploading}
             onValueChange={setFiles}

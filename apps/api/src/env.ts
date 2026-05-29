@@ -29,4 +29,6 @@ export const env = {
     process.env.EXPIRY_SWEEPER_INTERVAL_MS ?? 60_000
   ),
   enableKeyspaceExpiry: process.env.ENABLE_KEYSPACE_EXPIRY !== "false",
+  /** When set, matching `x-toss-key` header or `?k=` query bypasses upload size limits. */
+  internalApiKey: process.env.INTERNAL_API_KEY,
 }

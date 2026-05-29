@@ -1,6 +1,7 @@
 import { zValidator } from "@hono/zod-validator"
 import { createId } from "@paralleldrive/cuid2"
 import {
+  INTERNAL_MAX_FILE_SIZE_BYTES,
   isBlockedFile,
   MAX_FILE_SIZE_BYTES,
   RETENTION_OPTIONS,
@@ -8,6 +9,7 @@ import {
 import { Hono } from "hono"
 import { z } from "zod"
 
+import { hasInternalUploadAccess } from "../lib/internal-key"
 import {
   completeShare,
   createPendingShare,
@@ -15,12 +17,18 @@ import {
   getReadySharePublic,
 } from "../lib/shares"
 
-const createShareSchema = z.object({
-  filename: z.string().min(1).max(512),
-  contentType: z.string().min(1).max(256),
-  size: z.number().int().positive().max(MAX_FILE_SIZE_BYTES),
-  retention: z.enum(RETENTION_OPTIONS),
-})
+function createShareSchema(unlimited: boolean) {
+  return z.object({
+    filename: z.string().min(1).max(512),
+    contentType: z.string().min(1).max(256),
+    size: z
+      .number()
+      .int()
+      .positive()
+      .max(unlimited ? INTERNAL_MAX_FILE_SIZE_BYTES : MAX_FILE_SIZE_BYTES),
+    retention: z.enum(RETENTION_OPTIONS),
+  })
+}
 
 const completeShareSchema = z.object({
   parts: z
@@ -34,8 +42,16 @@ const completeShareSchema = z.object({
 })
 
 export const sharesRoutes = new Hono()
-  .post("/", zValidator("json", createShareSchema), async (c) => {
-    const body = c.req.valid("json")
+  .get("/upload-access", (c) => {
+    return c.json({ unlimited: hasInternalUploadAccess(c) })
+  })
+  .post("/", async (c) => {
+    const unlimited = hasInternalUploadAccess(c)
+    const parsed = createShareSchema(unlimited).safeParse(await c.req.json())
+    if (!parsed.success) {
+      return c.json({ error: "Invalid request body" }, 400)
+    }
+    const body = parsed.data
 
     if (isBlockedFile(body.filename, body.contentType)) {
       return c.json({ error: "File type is not allowed" }, 400)

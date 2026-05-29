@@ -1,5 +1,11 @@
 export const MAX_FILE_SIZE_BYTES = 500 * 1024 * 1024
 
+/** S3 multipart object maximum; used when internal API key bypass is active. */
+export const INTERNAL_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024 * 1024 * 1024
+
+export const INTERNAL_API_KEY_QUERY_PARAM = "k"
+export const INTERNAL_API_KEY_HEADER = "x-toss-key"
+
 export const RETENTION_OPTIONS = [
   "15m",
   "30m",

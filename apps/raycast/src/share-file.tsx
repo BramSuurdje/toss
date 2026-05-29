@@ -3,7 +3,11 @@ import { lookup } from "mime-types"
 import { basename } from "path"
 
 import { createApiClient } from "./lib/api"
-import { MAX_FILE_SIZE_BYTES, isBlockedFile } from "@transferflow/shared"
+import {
+  INTERNAL_MAX_FILE_SIZE_BYTES,
+  MAX_FILE_SIZE_BYTES,
+  isBlockedFile,
+} from "@transferflow/shared"
 import { getFinderSelection } from "./lib/finder"
 import { getPreferences, sharePageUrl } from "./lib/preferences"
 import { uploadFile } from "./lib/upload"
@@ -13,8 +17,11 @@ function contentTypeFor(filename: string): string {
 }
 
 export default async function Command() {
-  const { apiUrl, webUrl, retention } = getPreferences()
-  const api = createApiClient(apiUrl)
+  const { apiUrl, webUrl, retention, internalApiKey } = getPreferences()
+  const api = createApiClient(apiUrl, internalApiKey)
+  const maxFileSize = internalApiKey
+    ? INTERNAL_MAX_FILE_SIZE_BYTES
+    : MAX_FILE_SIZE_BYTES
 
   const toast = await showToast({
     style: Toast.Style.Animated,
@@ -37,8 +44,12 @@ export default async function Command() {
     const file = files[0]
     const contentType = contentTypeFor(file.name)
 
-    if (file.size > MAX_FILE_SIZE_BYTES) {
-      throw new Error("File exceeds the 500 MB limit")
+    if (file.size > maxFileSize) {
+      throw new Error(
+        internalApiKey
+          ? "File exceeds the maximum upload size"
+          : "File exceeds the 500 MB limit"
+      )
     }
 
     if (isBlockedFile(file.name, contentType)) {

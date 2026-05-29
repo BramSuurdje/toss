@@ -1,3 +1,4 @@
+import { INTERNAL_API_KEY_HEADER } from "@transferflow/shared"
 import { Hono } from "hono"
 import { cors } from "hono/cors"
 import { logger } from "hono/logger"
@@ -15,7 +16,7 @@ app.use(
   cors({
     origin: env.webOrigin,
     allowMethods: ["GET", "POST", "OPTIONS"],
-    allowHeaders: ["Content-Type"],
+    allowHeaders: ["Content-Type", INTERNAL_API_KEY_HEADER],
   })
 )
 

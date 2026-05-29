@@ -1,8 +1,9 @@
 import { Spinner } from "@transferflow/ui/components/spinner"
-import { lazy, Suspense } from "react"
+import { lazy, Suspense, useEffect } from "react"
 import { BrowserRouter, Route, Routes } from "react-router-dom"
 
 import { AppShell } from "@/components/app-shell"
+import { activateInternalKeyOnLoad } from "@/lib/activate-internal-key"
 
 const HomePage = lazy(() =>
   import("@/pages/home-page").then((module) => ({ default: module.HomePage }))
@@ -22,6 +23,10 @@ function RouteFallback() {
 }
 
 export function App() {
+  useEffect(() => {
+    void activateInternalKeyOnLoad()
+  }, [])
+
   return (
     <BrowserRouter>
       <AppShell>
