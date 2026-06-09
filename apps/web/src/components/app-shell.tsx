@@ -67,9 +67,9 @@ export function AppShell({
           className="size-full object-cover object-bottom"
         />
         {/* <div className="absolute top-0 bottom-0 left-0 w-1/2 bg-gradient-to-r from-background to-transparent" /> */}
-        
+
         <div className="absolute top-45 left-4 right-4 text-center text-4xl font-bold text-foreground font-serif">
-          Transfering files has <br /> <Highlighter action="underline" strokeWidth={2} color="#DD8266" animationDuration={1250}>never been easier</Highlighter>.
+          Transferring files has <br /> <Highlighter action="underline" strokeWidth={2} color="#DD8266" animationDuration={1250}>never been easier</Highlighter>.
         </div>
       </aside>
     </div>
